@@ -16,6 +16,9 @@ Cilj ovog projekta jeste upravljati pametnim diodama WS2812b koje se nalaze na a
 # Napomena sto se tice git-a:
 
 Glavni branch: main
-prije svake aktivnosti uraditi: make clean
-nakon toga uraditi: git pull origin main
+
+Prije svake aktivnosti uraditi: make clean
+
+Nakon toga uraditi: git pull origin main
+
 Takodjer, prije svake add, commit i push komande raditi make clean kako bismo izbjegli fajlove sa ekstenzijom .s
