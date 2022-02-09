@@ -7,7 +7,12 @@
 
 void setStartPosition();
 void writeFrameOne();
-void writeFrameTwo();
+void writeFrameTwo(uint8_t);
+void writeFrameThree();
+void writeFrameFour();
+void writeFrameFive();
+
+
 void writeGUI();
 
 

@@ -1,5 +1,5 @@
 #include "usart.h"
-
+volatile char x;
 volatile uint8_t g_usart2_buffer[USART2_BUFFER_SIZE];
 volatile uint16_t g_usart2_widx = 0;
 volatile uint16_t g_usart2_ridx = 0;
@@ -10,6 +10,32 @@ volatile uint8_t g_usart3_buffer[USART3_BUFFER_SIZE];
 volatile uint16_t g_usart3_widx = 0;
 volatile uint16_t g_usart3_ridx = 0;
 volatile uint8_t usart3_state = 0;
+
+// ARROWS BY ERNAD 
+volatile uint8_t position = 1; 
+volatile char *color[]={"RED","GREEN","BLUE"};
+volatile char *mode[]={"OFF","ON","TIMER","COUNTER","ANIMATIONS"};
+volatile char *animations[]={"CIRCLE","UP_DOWN","BLINK","SNAKE"};
+volatile char *timer[]={"OFF","ON"};
+
+volatile uint8_t ind_color=0;
+volatile uint8_t ind_mode=0;
+volatile uint8_t ind_anim=0;
+volatile uint8_t ind_timer=0;
+
+
+volatile uint8_t flag_color[]={1,0};
+volatile uint8_t flag_mode[]={1,0};
+volatile uint8_t flag_anim[]={1,0};
+volatile uint8_t flag_timer[]={1,0};
+
+// ARRAY SIZE - 1
+volatile uint8_t numColor= 2;
+volatile uint8_t numMode=4;
+volatile uint8_t numAnim=3;
+volatile uint8_t numTimer=1;
+
+
 
 // Super code:
 // Up -> 8
@@ -255,11 +281,11 @@ void sprintUSART2(uint8_t *str)
 void USART2_IRQHandler(void)
 {
 	uint8_t data;
-
-	if (USART2->SR & (USART_SR_RXNE))
+	
+	if(USART2->SR&(USART_SR_RXNE))
 	{
 		data = USART2->DR;
-		// USART3->SR &= ~(USART_SR_RXNE);
+		//USART3->SR &= ~(USART_SR_RXNE);
 		USART2->DR = data;
 	}
 }
@@ -267,61 +293,158 @@ void USART2_IRQHandler(void)
 
 void USART2_IRQHandler(void)
 {
-	state = 0;
-
-	if (USART2->SR & (USART_SR_RXNE))
-	{
+	
+	uint8_t data ;
+	if(USART2->SR&(USART_SR_RXNE))
+	{	
 		g_usart2_buffer[g_usart2_widx] = USART2->DR;
-		g_usart2_widx++;
-		if (g_usart2_widx >= (USART2_BUFFER_SIZE))
-		{
-			g_usart2_widx = 0;
-		}
+		g_usart2_widx++;	
+	}
+	if(g_usart2_widx >= (USART2_BUFFER_SIZE))
+	{
+		g_usart2_widx = 0;
 	}
 }
 
 #endif
+
 void chkRxBuffUSART2(void)
 {
-
 	if (g_usart2_ridx != g_usart2_widx)
 	{
-		if ((g_usart2_buffer[g_usart2_widx - 2] == '[') && (g_usart2_buffer[g_usart2_widx - 1] == 'A'))
-		{
-			// printUSART2("Up arrow\n");
-			arrow = 8;
-			g_usart2_widx = 0;
-			g_usart2_ridx = 0;
+		if (g_usart2_buffer[g_usart2_ridx++] == 0x1B){
+			if (g_usart2_buffer[g_usart2_ridx++] == '[')
+			{
+				if (g_usart2_buffer[g_usart2_ridx] == 'A'){
+					// COLOR CHANGE UP 
+						if (position == 1 && flag_color[0] == 1){
+							++ind_color;
+							flag_color[1] = 1;
+							if (ind_color == numColor)
+								flag_color[0] = 0;						
+						}
+					// MODE CHANGE UP
+						if(position == 2 && flag_mode[0] == 1){
+							++ind_mode;
+							flag_mode[1] = 1;
+							if(ind_mode == numMode)
+								flag_mode[0] = 0;
+						}					
+					// ANIMATION CHANGE UP
+					    if(position == 3 && flag_anim[0] == 1){
+							++ind_anim;
+							flag_anim[1] = 1;
+							if(ind_anim == numAnim)
+								flag_anim[0] = 0;
+						}	
+					// TIMER/COUNTER CHANGE UP
+						if(position == 4 && flag_timer[0] == 1){
+							++ind_timer;
+							flag_timer[1] = 1;
+							if(ind_timer == numTimer)
+								flag_timer[0] = 0;
+						}				
+					}
+				else if(g_usart2_buffer[g_usart2_ridx] == 'B'){
+					    // COLOR CHANGE DOWN
+						if (position == 1 && flag_color[1] == 1){
+							--ind_color;
+							flag_color[0] = 1;
+							if (ind_color == 0)
+								flag_color[1] = 0;		
+						}
+						//MODE CHANGE DOWN
+						if (position == 2 && flag_mode[1] == 1){
+							--ind_mode;
+							flag_mode[0] = 1;
+							if (ind_mode == 0)
+								flag_mode[1] = 0;
+						}						
+						// ANIMATION CHANGE DOWN
+						if (position == 3 && flag_anim[1] == 1){
+							--ind_anim;
+							flag_anim[0] = 1;
+							if (ind_anim == 0)
+								flag_anim[1] = 0;
+						}
+						// TIMER/COUNTER CHANGE DOWN
+						
+						if (position == 4 && flag_timer[1] == 1){
+							--ind_timer;
+							flag_timer[0] = 1;
+							if (ind_timer == 0)
+								flag_timer[1] = 0;
+						}							
+					}
+				else if (g_usart2_buffer[g_usart2_ridx] == 'C'){
+						if (position != 4)
+							++position;
+					}
+				else if (g_usart2_buffer[g_usart2_ridx] == 'D'){
+						if ( position != 1)
+							--position;			
+					}	
+				g_usart2_ridx++; 
+			}
 		}
-		if ((g_usart2_buffer[g_usart2_widx - 2] == '[') && (g_usart2_buffer[g_usart2_widx - 1] == 'B'))
-		{
-			// printUSART2("Down arrow\n");
-			arrow = 2;
-			g_usart2_widx = 0;
-			g_usart2_ridx = 0;
-		}
-		if ((g_usart2_buffer[g_usart2_widx - 2] == '[') && (g_usart2_buffer[g_usart2_widx - 1] == 'D'))
-		{
-			// printUSART2("Left arrow\n");
-			arrow = 4;
-			g_usart2_widx = 0;
-			g_usart2_ridx = 0;
-		}
-		if ((g_usart2_buffer[g_usart2_widx - 2] == '[') && (g_usart2_buffer[g_usart2_widx - 1] == 'C'))
-		{
-			// printUSART2("Right arrow\n");
-			arrow = 6;
-			g_usart2_widx = 0;
-			g_usart2_ridx = 0;
-		}
+	}
+	
 
-		// USART2->DR = g_usart2_buffer[g_usart2_ridx++];
+		
+
+	
+	if (ind_color == 0)
+		writeFrameTwo(31);
+	else if (ind_color == 1)
+		writeFrameTwo(32);
+	else if(ind_color == 2)
+		writeFrameTwo(34);
+	
+	printFunction(10,62,0,0,"          ");
+	printFunction(15,60,0,0,"          ");
+	printFunction(21,36,0,0,"          ");
+	printFunction(21,91,0,0,"          ");
+	
+	
+	switch(position){
+		case 1:		
+			printFunction(10,62,0,41,color[ind_color]);
+			printFunction(15,60,0,0,mode[ind_mode]);
+			printFunction(21,36,0,0,animations[ind_anim]);
+			printFunction(21,91,0,0,timer[ind_timer]);		
+			break;
+			
+		case 2:
+			printFunction(10,62,0,0,color[ind_color]);
+			printFunction(15,60,0,41,mode[ind_mode]);
+			printFunction(21,36,0,0,animations[ind_anim]);
+			printFunction(21,91,0,0,timer[ind_timer]);
+			break;
+		case 3:
+			printFunction(10,62,0,0,color[ind_color]);
+			printFunction(15,60,0,0,mode[ind_mode]);
+			printFunction(21,36,0,41,animations[ind_anim]);
+			printFunction(21,91,0,0,timer[ind_timer]);
+			break;
+		case 4:
+			printFunction(10,62,0,0,color[ind_color]);
+			printFunction(15,60,0,0,mode[ind_mode]);
+			printFunction(21,36,0,0,animations[ind_anim]);
+			printFunction(21,91,0,41,timer[ind_timer]);
+	}		
+	
+	
+	
+	
+	
+	
+	
+		
 		if (g_usart2_ridx >= (USART2_BUFFER_SIZE))
 		{
 			g_usart2_ridx = 0;
 		}
-		state = 1;
-	}
+	
 }
 
 

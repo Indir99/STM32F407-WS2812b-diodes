@@ -6,20 +6,20 @@
 
 
 
-
 int main()
 {
 //init functions
-initUSART2(USART2_BAUDRATE_921600);
+	initUSART2(USART2_BAUDRATE_921600);
+	enIrqUSART2();
 
 //gui printing
     writeGUI();
     
     while(1){
-        
-        //printUSART2("Indir test \n");
-        printFunction(15,15,0,34,"Indir print function testing \n");
-        delay_ms(1000);
+	#ifndef USART_ECHO
+		chkRxBuffUSART2();
+	#endif
+		delay_ms(100);
     }
     return 0;
 }
