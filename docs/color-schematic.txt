@@ -1,0 +1,24 @@
+BASIC text colors:
+    Black: \u001b[30m   -> 30
+    Red: \u001b[31m     -> 31
+    Green: \u001b[32m   -> 32
+    Yellow: \u001b[33m  -> 33
+    Blue: \u001b[34m    -> 34
+    Magenta: \u001b[35m -> 35
+    Cyan: \u001b[36m    -> 36
+    White: \u001b[37m   -> 37
+
+    Reset: \u001b[0m    -> 0
+
+BASIC background colors:
+    Background Black: \u001b[40m        -> 40
+    Background Red: \u001b[41m          -> 41
+    Background Green: \u001b[42m        -> 42
+    Background Yellow: \u001b[43m       -> 43
+    Background Blue: \u001b[44m         -> 44
+    Background Magenta: \u001b[45m      -> 45
+    Background Cyan: \u001b[46m         -> 46
+    Background White: \u001b[47m        -> 47 
+
+source: https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
+

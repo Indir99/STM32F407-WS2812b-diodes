@@ -2,6 +2,7 @@
 #include "delay.h"
 #include "usart.h"
 #include "misc.h"
+#include "gui.h"
 
 
 
@@ -12,11 +13,12 @@ int main()
 initUSART2(USART2_BAUDRATE_921600);
 
 //gui printing
-	printUSART2("\033[2J\r");
-	printUSART2("\033[;H");
+    writeGUI();
     
     while(1){
-        printUSART2("Indir test \n");
+        
+        //printUSART2("Indir test \n");
+        printFunction(15,15,0,34,"Indir print function testing \n");
         delay_ms(1000);
     }
     return 0;
