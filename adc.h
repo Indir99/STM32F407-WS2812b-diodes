@@ -4,9 +4,10 @@
 #include "stm32f4xx.h"
 #include "delay.h"
 
-void 		initADC1(void);	
-void 		initDmaADC1(uint16_t * dBuff1, uint16_t * dBuff2, uint16_t size);
-uint16_t 	getADC1(void);
-void pwm_start(uint32_t,uint32_t*);
+void initADC1(void);
+void initDmaADC1(uint16_t *dBuff1, uint16_t *dBuff2, uint16_t size);
+uint16_t getADC1(void);
+void pwm_start();
+void fillGreen();
 
-#endif 
+#endif
