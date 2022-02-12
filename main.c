@@ -3,13 +3,19 @@
 #include "usart.h"
 #include "misc.h"
 #include "gui.h"
+#include "adc.h"
 
+
+#define ADC_BUFF_SIZE		1024
+static uint16_t adc_buff0[ADC_BUFF_SIZE];
+static uint16_t adc_buff1[ADC_BUFF_SIZE];
 
 
 int main()
 {
 //init functions
 	initUSART2(USART2_BAUDRATE_921600);
+	initDmaADC1(adc_buff0, adc_buff1, ADC_BUFF_SIZE);
 	enIrqUSART2();
 
 //gui printing
@@ -20,6 +26,9 @@ int main()
 		chkRxBuffUSART2();
 	#endif
 		delay_ms(100);
+		
+		
+		
     }
     return 0;
 }
