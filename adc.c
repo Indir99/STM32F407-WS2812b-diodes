@@ -9,7 +9,7 @@ uint32_t pwm_niz[602]={};
 void pwm_start(uint32_t color1, uint32_t * pwmData){
 	
 	
-	uint32_t color = 0x673723;
+	uint32_t color = 0xFF0000;
 	
 	uint32_t tmp[24]={};
 	int8_t i=23;
@@ -90,11 +90,10 @@ void initDmaADC1(uint16_t * dBuff1, uint16_t * dBuff2, uint16_t size)
 	/// setup TIM3 
 	///wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 	RCC->APB1ENR |= RCC_APB1ENR_TIM3EN; 								// enable TIM3 
-	TIM3->PSC = 42000 - 1;												// set TIM3 counting prescaler to 42 (p406)
-																		// set TIM3 counting prescaler to 42 (p406)
-																		// 84MHz/100 = 840kHz 
-	TIM3->ARR = 150;													// reload value set to 10 kHz!
-	TIM3->CR1 = 0x0084;													// ARPE On, CMS disable, Up counting
+	//TIM3->PSC = 4200 - 1;												// set TIM3 counting prescaler to 42 (p406)
+																														// 84MHz/100 = 840kHz 
+	//TIM3->ARR = 100;													// reload value set to 10 kHz!
+	//TIM3->CR1 = 0x0084;													// ARPE On, CMS disable, Up counting
 																		// UEV disable, TIM3 enable(p392)
 	/* TIM3->CCMR2 |= (TIM_CCMR2_OC4PE)|(TIM_CCMR2_OC4M_2)|(TIM_CCMR2_OC4M_1); */					
 	/* TIM3->CCMR1 |= (TIM_CCMR1_OC1PE)|(TIM_CCMR1_OC1M_2)|(TIM_CCMR1_OC1M_1); */	
@@ -123,6 +122,9 @@ void initDmaADC1(uint16_t * dBuff1, uint16_t * dBuff2, uint16_t size)
 		//TIM4->CCR4 = 0x0056;
 		TIM4->CCR4 = 70;
 		
+		TIM4->DIER |= TIM_DIER_UDE;
+		
+		
 		TIM4->CCMR1 |= (TIM_CCMR1_OC1PE)|(TIM_CCMR1_OC1M_2)|(TIM_CCMR1_OC1M_1);
 		TIM4->CCMR1 |= (TIM_CCMR1_OC2PE)|(TIM_CCMR1_OC2M_2)|(TIM_CCMR1_OC2M_1);	
 		TIM4->CCMR2 |= (TIM_CCMR2_OC3PE)|(TIM_CCMR2_OC3M_2)|(TIM_CCMR2_OC3M_1);	
@@ -147,7 +149,7 @@ void initDmaADC1(uint16_t * dBuff1, uint16_t * dBuff2, uint16_t size)
 	///wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 	RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN;									// enable DMA2 clock
 	
-	DMA1_Stream2->CR = 0x00000000;										// disable stream 0 (ADC1)
+	DMA1_Stream3->CR = 0x00000000;										// disable stream 0 (ADC1)
 	while((DMA1_Stream2->CR & DMA_SxCR_EN) == DMA_SxCR_EN);				// wait until the DMA transfer is completed
 	
 	DMA1->LISR = 0x00000000;	
@@ -155,28 +157,29 @@ void initDmaADC1(uint16_t * dBuff1, uint16_t * dBuff2, uint16_t size)
 	
 	pwm_start(10,pwm_niz);
 	
-	DMA1_Stream2->PAR = (uint32_t)&TIM4->CCR2;							// peripheral port register address (ADC1)
-	DMA1_Stream2->M0AR = (uint32_t)pwm_niz;								// memory address of first buffer
+	DMA1_Stream3->PAR = (uint32_t)&TIM4->CCR2;							// peripheral port register address (ADC1)
+	DMA1_Stream3->M0AR = (uint32_t)pwm_niz;								// memory address of first buffer
 	//DMA1_Stream2->M1AR = (uint32_t)pwm2;								// memory address of first buffer
-	DMA1_Stream2->NDTR = 602;											// number of samples to write
+	DMA1_Stream3->NDTR = 602;											// number of samples to write
 	
 	/* DMA1_Stream2->CR &= ~DMA_SxCR_CHSEL;								// select channel 0 for ADC1 */
-	DMA1_Stream2->CR |= DMA_SxCR_CHSEL_2 | DMA_SxCR_CHSEL_0;								// select channel 0 for ADC1
+	//DMA1_Stream3->CR |= DMA_SxCR_CHSEL_2 | DMA_SxCR_CHSEL_0;								// select channel 0 for ADC1
+	DMA1_Stream3->CR |= DMA_SxCR_CHSEL_1;								// select channel 0 for ADC1
 	/* DMA1_Stream2->CR |= 0x0a000000;								// select channel 0 for ADC1 */
-	DMA1_Stream2->CR |= DMA_SxCR_PL;									// select stream priority to very high
+	DMA1_Stream3->CR |= DMA_SxCR_PL;									// select stream priority to very high
 																		// - DMA is flow controller
 																		// - Peripheral address pointer is fixed																		
-	DMA1_Stream2->CR |= DMA_SxCR_MINC;									// Memory address pointer is incremented
+	DMA1_Stream3->CR |= DMA_SxCR_MINC;									// Memory address pointer is incremented
 																		// in accordance with the memory data size																	
-	DMA1_Stream2->CR |= DMA_SxCR_CIRC;									// Memory address pointer is incremented
+	DMA1_Stream3->CR |= DMA_SxCR_CIRC;									// Memory address pointer is incremented
 	//DMA1_Stream2->CR |= DMA_SxCR_DBM;								// Double buffer mode
-	DMA1_Stream2->CR |= DMA_SxCR_PSIZE_0;								// Peripheral data size:
+	DMA1_Stream3->CR |= DMA_SxCR_PSIZE_0;								// Peripheral data size:
 																		// - Half Word 16-bit
-	DMA1_Stream2->CR |= DMA_SxCR_MSIZE_0;								// Memory data size:
+	DMA1_Stream3->CR |= DMA_SxCR_MSIZE_0;								// Memory data size:
 																		// - Half Word 16-bit
-	DMA1_Stream2->CR |= DMA_SxCR_DIR_0;									// Data transfer direction: 
+	DMA1_Stream3->CR |= DMA_SxCR_DIR_0;									// Data transfer direction: 
 																		// - 00 -> Peripheral-to-memory
-	DMA1_Stream2->CR |= DMA_SxCR_EN;									// enable stream 0 (ADC1)
+	DMA1_Stream3->CR |= DMA_SxCR_EN;									// enable stream 0 (ADC1)
 }
 
 
