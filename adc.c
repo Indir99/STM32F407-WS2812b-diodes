@@ -9,7 +9,7 @@ uint32_t pwm_niz[602]={};
 void pwm_start(uint32_t color1, uint32_t * pwmData){
 	
 	
-	uint32_t color = 0xFF0000;
+	uint32_t color = 0x00FF00;
 	uint32_t tmp[24]={};
 	int8_t i=23;
 	
@@ -117,7 +117,7 @@ void initDmaADC1(uint16_t * dBuff1, uint16_t * dBuff2, uint16_t size)
 		TIM4->CCR2 = 0x0000;
 		TIM4->CCR3 = 0x0056;
 		//TIM4->CCR4 = 0x0056;
-		TIM4->CCR4 = 50;
+		TIM4->CCR4 = 100;
 		
 		TIM4->CCMR1 |= (TIM_CCMR1_OC1PE)|(TIM_CCMR1_OC1M_2)|(TIM_CCMR1_OC1M_1);
 		TIM4->CCMR1 |= (TIM_CCMR1_OC2PE)|(TIM_CCMR1_OC2M_2)|(TIM_CCMR1_OC2M_1);	
@@ -142,7 +142,7 @@ void initDmaADC1(uint16_t * dBuff1, uint16_t * dBuff2, uint16_t size)
 	///wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 	RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN;									// enable DMA2 clock
 	
-	DMA1_Stream2->CR = 0x00000000;										// disable stream 0 (ADC1)
+	DMA1_Stream0->CR = 0x00000000;										// disable stream 0 (ADC1)
 	while((DMA1_Stream2->CR & DMA_SxCR_EN) == DMA_SxCR_EN);				// wait until the DMA transfer is completed
 	
 	DMA1->LISR = 0x00000000;	
@@ -151,8 +151,8 @@ void initDmaADC1(uint16_t * dBuff1, uint16_t * dBuff2, uint16_t size)
 	pwm_start(10,pwm_niz);
 	
 	DMA1_Stream2->PAR = (uint32_t)&TIM4->CCR2;							// peripheral port register address (ADC1)
-	DMA1_Stream2->M0AR = (uint32_t)pwm_niz;								// memory address of first buffer
-	DMA1_Stream2->M1AR = (uint32_t)pwm_niz;								// memory address of first buffer
+	DMA1_Stream2->M0AR = (uint32_t)pwm1;								// memory address of first buffer
+	DMA1_Stream2->M1AR = (uint32_t)pwm2;								// memory address of first buffer
 	DMA1_Stream2->NDTR = PWM_CNT_ARRAY_SIZE;											// number of samples to write
 	
 	/* DMA1_Stream2->CR &= ~DMA_SxCR_CHSEL;								// select channel 0 for ADC1 */
@@ -167,7 +167,7 @@ void initDmaADC1(uint16_t * dBuff1, uint16_t * dBuff2, uint16_t size)
 	DMA1_Stream2->CR |= DMA_SxCR_DBM;									// Double buffer mode
 	DMA1_Stream2->CR |= DMA_SxCR_PSIZE_0;								// Peripheral data size:
 																		// - Half Word 16-bit
-	DMA1_Stream2->CR |= DMA_SxCR_MSIZE_0;								// Memory data size:
+	DMA1_Stream2->CR |= DMA_SxCR_MSIZE_;								// Memory data size:
 																		// - Half Word 16-bit
 	DMA1_Stream2->CR |= DMA_SxCR_DIR_0;									// Data transfer direction: 
 																		// - 00 -> Peripheral-to-memory
