@@ -11,9 +11,9 @@ volatile uint16_t g_usart3_widx = 0;
 volatile uint16_t g_usart3_ridx = 0;
 volatile uint8_t usart3_state = 0;
 
-// ARROWS BY ERNAD 
+// ARROWS 
 volatile uint8_t position = 1; 
-volatile char *color[]={"RED","GREEN","BLUE"};
+volatile char *color[]={"RED","GREEN","BLUE","YELLOW","PURPLE","CYAN"};
 volatile char *mode[]={"OFF","ON","TIMER","COUNTER","ANIMATIONS"};
 volatile char *animations[]={"CIRCLE","UP_DOWN","BLINK","SNAKE"};
 volatile char *timer[]={"OFF","ON"};
@@ -30,7 +30,7 @@ volatile uint8_t flag_anim[]={1,0};
 volatile uint8_t flag_timer[]={1,0};
 
 // ARRAY SIZE - 1
-volatile uint8_t numColor= 2;
+volatile uint8_t numColor= 5;
 volatile uint8_t numMode=4;
 volatile uint8_t numAnim=3;
 volatile uint8_t numTimer=1;
@@ -399,6 +399,12 @@ void chkRxBuffUSART2(void)
 		writeFrameTwo(32);
 	else if(ind_color == 2)
 		writeFrameTwo(34);
+	else if(ind_color == 3)
+		writeFrameTwo(33);
+	else if(ind_color == 4)
+		writeFrameTwo(35);
+	else
+		writeFrameTwo(36);
 	
 	printFunction(10,62,0,0,"          ");
 	printFunction(15,60,0,0,"          ");

@@ -2,7 +2,7 @@
 
 
 void setStartPosition(){
-    printUSART2("\033[2J\r");
+    printUSART2("\033[2J\r \e[?25l");
 	printUSART2("\033[;H");
 }
 

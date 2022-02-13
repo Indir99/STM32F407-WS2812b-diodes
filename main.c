@@ -13,19 +13,21 @@ int main()
 {
 	// init functions
 	initUSART2(USART2_BAUDRATE_921600);
-	initDmaADC1(adc_buff0, adc_buff1, ADC_BUFF_SIZE);
-	//	enIrqUSART2();
+	initDmaADC1(adc_buff0);
+    enIrqUSART2();
 	// gui printing
-	// writeGUI();
+	 writeGUI();
 
 	while (1)
 	{
-		printUSART2("%d \n", (uint32_t *)DMA1_Stream6->NDTR);
-		delay_ms(1000);
-		//#ifndef USART_ECHO
-		//		chkRxBuffUSART2();
-		//#endif
-		//		delay_ms(100);
+		//delay_ms(10000);
+		//numberZero(0xFF0000);
+		//delay_ms(10000);
+		//delay_ms(500);
+		#ifndef USART_ECHO
+				chkRxBuffUSART2();
+		#endif
+		delay_ms(100);
 	}
 	return 0;
 }
