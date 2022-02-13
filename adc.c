@@ -9,11 +9,12 @@ uint16_t pwm2[PWM_CNT_ARRAY_SIZE] = {999, 509, 235, 109, 50, 23, 11, 5, 2, 0};
 //uint8_t numberOne[7]={0,1,2,3,17,18,19};
 uint16_t pwmArray[DMA_ARRAY_SIZE] = {};
 // uint16_t pwmArray2[DMA_ARRAY_SIZE] = {};
-
+uint8_t counter = 0;
 //NUMBERS DESIGN
 
 void numberZero(uint32_t color)
 {
+		
 	uint32_t colors[23] = {};
 	
 	for (int i = 0; i < 23; i++)
@@ -47,6 +48,7 @@ void numberZero(uint32_t color)
 
 void numberOne(uint32_t color)
 {
+
 	uint32_t colors[23] = {};
 	
 	for (int i = 0; i < 23; i++)
@@ -75,11 +77,11 @@ void numberOne(uint32_t color)
 	for (int i = 552; i < 602; i++)
 		pwmArray[i] = 34;
 		
-	delay_ms(10);	
+	delay_ms(10);
 }
 
 void numberTwo(uint32_t color)
-{
+{								
 	uint32_t colors[23] = {};
 	
 	for (int i = 0; i < 23; i++)
@@ -109,6 +111,8 @@ void numberTwo(uint32_t color)
 		pwmArray[i] = 34;
 		
 	delay_ms(10);	
+	
+
 }
 
 void numberThree(uint32_t color)
@@ -141,7 +145,11 @@ void numberThree(uint32_t color)
 	for (int i = 552; i < 602; i++)
 		pwmArray[i] = 34;
 		
+		
 	delay_ms(10);	
+//	TIM4->CCR4 = 0;
+	//initDmaADC1(3);
+	
 }
 
 void numberFour(uint32_t color)
@@ -338,8 +346,9 @@ void numberNine(uint32_t color)
 }
 
 
-void initDmaADC1(uint32_t * pwm_buffer)
+void initDmaADC1(uint8_t number)
 {
+	
 
 	// Initialize TIMER
 	/// wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
@@ -406,15 +415,23 @@ void initDmaADC1(uint32_t * pwm_buffer)
 	//numberFour(0xFF0000);
 	//numberFive(0x0000FF);
 	//numberSix(0x00FF00);
-	//numberSeven(0x00FF00);
+	//numberSeven(0x00FFFF);
 	//numberEight(0xFF0000);
 	//numberNine(0xFF00FF);
+	if (number == 0)
+		numberZero(0xFF0000);
+	else if (number == 1)
+		numberOne(0xFF0000);
+	else if (number == 2)
+		numberTwo(0x00FF00);
+	else
+		numberThree(0x0000FF);
 
 	/// wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 	///  Setup DMA2 controller for ADC1 p179
 	/// wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 	RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN; // enable DMA2 clock
-
+	DMA1_Stream6->CR |= ~DMA_SxCR_EN; 									// 
 	DMA1_Stream6->CR = 0x00000000; // disable stream 0 (ADC1)
 	while ((DMA1_Stream6->CR & DMA_SxCR_EN) == DMA_SxCR_EN); 			// wait until the DMA transfer is completed
 
@@ -425,13 +442,13 @@ void initDmaADC1(uint32_t * pwm_buffer)
 	DMA1_Stream6->M0AR = (uint32_t)pwmArray;  							// memory address of first buffer
 	//DMA1_Stream2->M1AR = (uint32_t)pwmArray;  						// memory address of first buffer
 	DMA1_Stream6->NDTR = DMA_ARRAY_SIZE; 								// number of samples to write
-
+	
 	/* DMA1_Stream2->CR &= ~DMA_SxCR_CHSEL;								// select channel 0 for ADC1 */
 	// DMA1_Stream2->CR |= DMA_SxCR_CHSEL_2 | DMA_SxCR_CHSEL_0; 		// select channel 0 for ADC1
 	DMA1_Stream6->CR |= DMA_SxCR_CHSEL_1;
 	/* DMA1_Stream2->CR |= 0x0a000000;									// select channel 0 for ADC1 */
 	DMA1_Stream6->CR |= DMA_SxCR_PL;                                    // select stream priority to very high
-									                                    // - DMA is flow controller
+	printUSART2("%d",DMA1_Stream6->M0AR);								                                    // - DMA is flow controller
 									                                    // - Peripheral address pointer is fixed
 	DMA1_Stream6->CR |= DMA_SxCR_MINC; 									// Memory address pointer is incremented
 																		// in accordance with the memory data size
@@ -442,7 +459,7 @@ void initDmaADC1(uint32_t * pwm_buffer)
 	DMA1_Stream6->CR |= DMA_SxCR_MSIZE_0; 								// Memory data size:
 																		// - Half Word 16-bit
 	DMA1_Stream6->CR |= DMA_SxCR_DIR_0;	  								// Data transfer direction:
-																		// - 00 -> Peripheral-to-memory
+															// - 00 -> Peripheral-to-memory
 	//printUSART2("%d \n", (uint32_t *)DMA1_Stream6->NDTR);
 	DMA1_Stream6->CR |= DMA_SxCR_EN; 									// enable stream 0 (ADC1)
 }

@@ -13,21 +13,37 @@ int main()
 {
 	// init functions
 	initUSART2(USART2_BAUDRATE_921600);
-	initDmaADC1(adc_buff0);
+	initDmaADC1(0);
     enIrqUSART2();
 	// gui printing
-	 writeGUI();
+	// writeGUI();
 
 	while (1)
 	{
-		//delay_ms(10000);
-		//numberZero(0xFF0000);
+		//printUSART2("%d \n ", DMA1_Stream6->M0AR);
+		numberOne(0x0000FF);
+		TIM4->CCR4 = 0;
+		delay_ms(200);
+		initDmaADC1(2);
+		delay_ms(500);
+		numberThree(0x0000FF);
+		TIM4->CCR4 = 0;
+		delay_ms(200);
+	//	initDmaADC1(2);
+	//	delay_ms(500);
+		
+		
+	//	delay_ms(1000);
+	//	TIM4->CCR4 = 100;
+	//	initDmaADC1(2);
+		
+	//	numberZero(0xFF0000);
 		//delay_ms(10000);
 		//delay_ms(500);
-		#ifndef USART_ECHO
-				chkRxBuffUSART2();
-		#endif
-		delay_ms(100);
+		//#ifndef USART_ECHO
+		//		chkRxBuffUSART2();
+	//	#endif
+		//delay_ms(100);
 	}
 	return 0;
 }

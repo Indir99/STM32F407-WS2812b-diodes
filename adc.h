@@ -5,9 +5,9 @@
 #include "delay.h"
 void Ablue();
 void initADC1(void);
-void initDmaADC1(uint32_t *);
+void initDmaADC1(uint8_t);
 uint16_t getADC1(void);
-void pwm_start();
+
 void numberZero(uint32_t);
 void numberOne(uint32_t);
 void numberTwo(uint32_t);
