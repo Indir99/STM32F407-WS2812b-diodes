@@ -18,5 +18,4 @@ void numberSix(uint32_t);
 void numberSeven(uint32_t);
 void numberEight(uint32_t);
 void numberNine(uint32_t);
-
 #endif
