@@ -437,14 +437,7 @@ void chkRxBuffUSART2(void)
 			printFunction(15,60,0,0,mode[ind_mode]);
 			printFunction(21,36,0,0,animations[ind_anim]);
 			printFunction(21,91,0,41,timer[ind_timer]);
-	}		
-	
-	
-	
-	
-	
-	
-	
+	}	
 		
 		if (g_usart2_ridx >= (USART2_BUFFER_SIZE))
 		{

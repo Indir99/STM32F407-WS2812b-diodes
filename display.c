@@ -1,4 +1,4 @@
-#include "adc.h"
+#include "display.h"
 #include "usart.h"
 
 
@@ -43,7 +43,7 @@ void numberZero(uint32_t color)
 	for (int i = 552; i < 602; i++)
 		pwmArray[i] = 34;
 		
-	delay_ms(10);	
+	delay_ms(10);		
 }
 
 void numberOne(uint32_t color)
@@ -78,6 +78,7 @@ void numberOne(uint32_t color)
 		pwmArray[i] = 34;
 		
 	delay_ms(10);
+	
 }
 
 void numberTwo(uint32_t color)
@@ -110,9 +111,7 @@ void numberTwo(uint32_t color)
 	for (int i = 552; i < 602; i++)
 		pwmArray[i] = 34;
 		
-	delay_ms(10);	
-	
-
+	delay_ms(10);
 }
 
 void numberThree(uint32_t color)
@@ -147,9 +146,6 @@ void numberThree(uint32_t color)
 		
 		
 	delay_ms(10);	
-//	TIM4->CCR4 = 0;
-	//initDmaADC1(3);
-	
 }
 
 void numberFour(uint32_t color)
@@ -215,7 +211,7 @@ void numberFive(uint32_t color)
 	for (int i = 552; i < 602; i++)
 		pwmArray[i] = 34;
 		
-	delay_ms(20);	
+	delay_ms(10);	
 }
 
 void numberSix(uint32_t color)
@@ -345,11 +341,9 @@ void numberNine(uint32_t color)
 	delay_ms(10);	
 }
 
-
-void initDmaADC1(uint8_t number)
+void initDMA()
 {
 	
-
 	// Initialize TIMER
 	/// wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 	///  setup TIM3
@@ -367,7 +361,7 @@ void initDmaADC1(uint8_t number)
 	TIM3->DIER |= TIM_DIER_UDE;
 
 	TIM3->EGR |= TIM_EGR_UG; 											// update event, reload all config p363
-	TIM3->CR1 |= TIM_CR1_CEN;
+	//TIM3->CR1 |= TIM_CR1_CEN;
 
 	// Initialize PWM
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN; 
@@ -386,7 +380,7 @@ void initDmaADC1(uint8_t number)
 		TIM4->CCR2 = 0x0000;
 		TIM4->CCR3 = 0x0056;
 		// TIM4->CCR4 = 0x0056;
-		TIM4->CCR4 = 100;
+		//TIM4->CCR4 = 100;
 
 		TIM4->DIER |= TIM_DIER_UDE;
 
@@ -406,34 +400,16 @@ void initDmaADC1(uint8_t number)
 		// activate capture compare mode
 		TIM4->CCER |= (TIM_CCER_CC1E) | (TIM_CCER_CC2E) | (TIM_CCER_CC3E) | (TIM_CCER_CC4E);
 		// start counter
-		TIM4->CR1 |= TIM_CR1_CEN;
+		//TIM4->CR1 |= TIM_CR1_CEN;
 	}
-	//numberZero(0xFF0000);
-	//numberOne(0xFF0000);
-	//numberTwo(0xFF0000);
-	//numberThree(0xFF0000);
-	//numberFour(0xFF0000);
-	//numberFive(0x0000FF);
-	//numberSix(0x00FF00);
-	//numberSeven(0x00FFFF);
-	//numberEight(0xFF0000);
-	//numberNine(0xFF00FF);
-	if (number == 0)
-		numberZero(0xFF0000);
-	else if (number == 1)
-		numberOne(0xFF0000);
-	else if (number == 2)
-		numberTwo(0x00FF00);
-	else
-		numberThree(0x0000FF);
-
+	
 	/// wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 	///  Setup DMA2 controller for ADC1 p179
 	/// wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
-	RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN; // enable DMA2 clock
-	DMA1_Stream6->CR |= ~DMA_SxCR_EN; 									// 
+	RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN; 								// enable DMA1 clock
+
 	DMA1_Stream6->CR = 0x00000000; // disable stream 0 (ADC1)
-	while ((DMA1_Stream6->CR & DMA_SxCR_EN) == DMA_SxCR_EN); 			// wait until the DMA transfer is completed
+	while ((DMA1_Stream6->CR & DMA_SxCR_EN) == DMA_SxCR_EN){}; 			// wait until the DMA transfer is completed
 
 	DMA1->LISR = 0x00000000;
 	DMA1->HISR = 0x00000000;
@@ -448,18 +424,35 @@ void initDmaADC1(uint8_t number)
 	DMA1_Stream6->CR |= DMA_SxCR_CHSEL_1;
 	/* DMA1_Stream2->CR |= 0x0a000000;									// select channel 0 for ADC1 */
 	DMA1_Stream6->CR |= DMA_SxCR_PL;                                    // select stream priority to very high
-	printUSART2("%d",DMA1_Stream6->M0AR);								                                    // - DMA is flow controller
+																		// - DMA is flow controller
 									                                    // - Peripheral address pointer is fixed
 	DMA1_Stream6->CR |= DMA_SxCR_MINC; 									// Memory address pointer is incremented
 																		// in accordance with the memory data size
-	DMA1_Stream6->CR |= DMA_SxCR_CIRC; 									// Memory address pointer is incremented
-	//DMA1_Stream2->CR |= DMA_SxCR_DBM;	 							// Double buffer mode
+	//DMA1_Stream6->CR |= DMA_SxCR_CIRC; 									// Memory address pointer is incremented
+	DMA1_Stream2->CR |= DMA_SxCR_DBM;	 							// Double buffer mode
 	DMA1_Stream6->CR |= DMA_SxCR_PSIZE_0;								// Peripheral data size:
 																		// - Half Word 16-bit
 	DMA1_Stream6->CR |= DMA_SxCR_MSIZE_0; 								// Memory data size:
 																		// - Half Word 16-bit
 	DMA1_Stream6->CR |= DMA_SxCR_DIR_0;	  								// Data transfer direction:
-															// - 00 -> Peripheral-to-memory
-	//printUSART2("%d \n", (uint32_t *)DMA1_Stream6->NDTR);
-	DMA1_Stream6->CR |= DMA_SxCR_EN; 									// enable stream 0 (ADC1)
 }
+
+void enable(){
+	printUSART2("ENABLE");
+	TIM4->CR1 |= TIM_CR1_CEN;
+//	printUSART2("%d \n",DMA1_Stream6->NDTR);
+	TIM4->CCR4 = 105;	
+    DMA1_Stream6->NDTR = DMA_ARRAY_SIZE;
+    DMA1_Stream6->CR |= DMA_SxCR_EN;
+}
+
+void disable(){
+	printUSART2("DISPLAY");
+	TIM4->CR1 &= ~(0x0001);
+//	TIM4->CCR4 = 0;
+	DMA1_Stream6->CR &= ~(0x0000001);
+//	DMA1_Stream6->NDTR = DMA_ARRAY_SIZE;
+}
+
+
+

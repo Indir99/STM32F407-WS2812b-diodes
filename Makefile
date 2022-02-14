@@ -10,8 +10,8 @@ SRCS = main.c
 SRCS += usart.c
 SRCS += misc.c
 SRCS += delay.c
-SRCS +=gui.c
-SRCS +=adc.c
+SRCS += gui.c
+SRCS += display.c
 
 # Normally you shouldn't need to change anything below this line!
 #######################################################################################

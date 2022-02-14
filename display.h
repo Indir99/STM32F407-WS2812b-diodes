@@ -3,10 +3,10 @@
 
 #include "stm32f4xx.h"
 #include "delay.h"
-void Ablue();
-void initADC1(void);
-void initDmaADC1(uint8_t);
-uint16_t getADC1(void);
+
+void initDMA();
+void enable();
+void disable();
 
 void numberZero(uint32_t);
 void numberOne(uint32_t);
