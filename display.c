@@ -1,14 +1,13 @@
 #include "display.h"
 #include "usart.h"
 
-
 #define DMA_ARRAY_SIZE 602
 #define PWM_CNT_ARRAY_SIZE 10
 
-void (*number_buffer[10])(uint32_t) = {numberZero,numberOne,numberTwo,numberThree,numberFour,numberFive,numberSix,
-	numberSeven,numberEight,numberNine};
+void (*number_buffer[10])(uint32_t) = {numberZero, numberOne, numberTwo, numberThree, numberFour, numberFive, numberSix,
+									   numberSeven, numberEight, numberNine};
 
-//uint32_t colors_led[6]={0xFF0000,0x00FF00,0x0000FF,0xFFFF00,0xFF00FF,0x00FFFF};
+// uint32_t colors_led[6]={0xFF0000,0x00FF00,0x0000FF,0xFFFF00,0xFF00FF,0x00FFFF};
 uint16_t pwm1[PWM_CNT_ARRAY_SIZE] = {0, 2, 5, 11, 23, 50, 109, 235, 509, 999};
 uint16_t pwm2[PWM_CNT_ARRAY_SIZE] = {999, 509, 235, 109, 50, 23, 11, 5, 2, 0};
 // uint8_t numberOne[7]={0,1,2,3,17,18,19};
@@ -18,11 +17,10 @@ uint16_t pwmArray[DMA_ARRAY_SIZE] = {};
 uint8_t counter = 0;
 uint8_t timer_flag = 0;
 
-
-
-void ledOFF(){
-	for (int i = 0; i<DMA_ARRAY_SIZE; i++)
-		pwmArray[i]=33;	
+void ledOFF()
+{
+	for (int i = 0; i < DMA_ARRAY_SIZE; i++)
+		pwmArray[i] = 33;
 }
 
 void numberZero(uint32_t color)
@@ -57,8 +55,7 @@ void numberZero(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
-//	start();
-
+	//	start();
 }
 
 void numberOne(uint32_t color)
@@ -126,9 +123,8 @@ void numberTwo(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
-
 }
-	
+
 void numberThree(uint32_t color)
 {
 	uint32_t colors[23] = {};
@@ -193,7 +189,6 @@ void numberFour(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
-
 }
 
 void numberFive(uint32_t color)
@@ -356,13 +351,88 @@ void numberNine(uint32_t color)
 	delay_ms(10);
 }
 
-void start(){
+void pushButtonCounter(uint32_t color, uint8_t buttonState)
+{
+	switch (buttonState)
+	{
+	case (0):
+	{
+		numberZero(color);
+		start();
+		printUSART2("Here");
+		break;
+	}
+	case (1):
+	{
+		numberOne(color);
+		start();
+		printUSART2("Tututut");
+		break;
+	}
+	case (2):
+	{
+		numberTwo(color);
+		start();
+		break;
+	}
+	case (3):
+	{
+		numberThree(color);
+		start();
+		break;
+	}
+	case (4):
+	{
+		numberFour(color);
+		start();
+		break;
+	}
+	case (5):
+	{
+		numberFive(color);
+		start();
+		break;
+	}
+	case (6):
+	{
+		numberSix(color);
+		start();
+		break;
+	}
+	case (7):
+	{
+		numberSeven(color);
+		start();
+		break;
+	}
+	case (8):
+	{
+		numberEight(color);
+		start();
+		break;
+	}
+	case (9):
+	{
+		numberNine(color);
+		start();
+		break;
+	}
+
+	default:
+		break;
+	}
+}
+
+void start()
+{
 	TIM4->CR1 |= TIM_CR1_CEN;
 	TIM4->EGR &= ~TIM_EGR_UG;
 	//	printUSART2("%d \n",DMA1_Stream6->NDTR);
 	// DMA1_Stream6->NDTR = DMA_ARRAY_SIZE;
 	DMA1_Stream6->CR |= DMA_SxCR_EN;
-	while (DMA1_Stream6->NDTR){}
+	while (DMA1_Stream6->NDTR)
+	{
+	}
 
 	// DMA DISABLE
 	TIM4->CR1 &= ~(0x0001);
@@ -405,7 +475,7 @@ void initDMA()
 		// set active mode high for pulse polarity
 		TIM4->CCER &= ~((TIM_CCER_CC1P) | (TIM_CCER_CC2P) | (TIM_CCER_CC3P) | (TIM_CCER_CC4P));
 		TIM4->CR1 |= (TIM_CR1_ARPE) | (TIM_CR1_URS);
-		
+
 		// update event, reload all config
 		TIM4->EGR |= TIM_EGR_UG;
 
@@ -421,7 +491,9 @@ void initDMA()
 	RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN; // enable DMA1 clock
 
 	DMA1_Stream6->CR = 0x00000000; // disable stream 0 (ADC1)
-	while ((DMA1_Stream6->CR & DMA_SxCR_EN) == DMA_SxCR_EN){}; // wait until the DMA transfer is completed
+	while ((DMA1_Stream6->CR & DMA_SxCR_EN) == DMA_SxCR_EN)
+	{
+	}; // wait until the DMA transfer is completed
 	DMA1->LISR = 0x00000000;
 	DMA1->HISR = 0x00000000;
 
@@ -435,8 +507,8 @@ void initDMA()
 	DMA1_Stream6->CR |= DMA_SxCR_CHSEL_1;
 	/* DMA1_Stream2->CR |= 0x0a000000;									// select channel 0 for ADC1 */
 	DMA1_Stream6->CR |= DMA_SxCR_PL;   // select stream priority to very high
-										// select stream priority to very high
-									   // - DMA is flow controller							   
+									   // select stream priority to very high
+									   // - DMA is flow controller
 									   // - Peripheral address pointer is fixed
 	DMA1_Stream6->CR |= DMA_SxCR_MINC; // Memory address pointer is incremented
 									   // in accordance with the memory data size
@@ -450,35 +522,40 @@ void initDMA()
 	DMA1_Stream6->CR |= DMA_SxCR_DIR_0;	  // Data transfer direction:
 }
 
-void timerLED(uint32_t color){
-	//uint8_t number = 0;
+void timerLED(uint32_t color)
+{
+	// uint8_t number = 0;
 	if (counter == 0)
 		timer_flag = 1;
-	else if (counter == 10){
+	else if (counter == 10)
+	{
 		timer_flag = 0;
-		counter =8;
+		counter = 8;
 	}
-	
-	if (counter < 10 && timer_flag==1){
-		number_buffer[counter](color);	
-		counter ++;
+
+	if (counter < 10 && timer_flag == 1)
+	{
+		number_buffer[counter](color);
+		counter++;
 	}
-	else if (counter > 0 && timer_flag==0){
-		number_buffer[counter](color);	
+	else if (counter > 0 && timer_flag == 0)
+	{
+		number_buffer[counter](color);
 		counter--;
 	}
-	
+
 	start();
 	delay_ms(1000);
 }
 
-void timerReset(){
+void timerReset()
+{
 	counter = 0;
 	timer_flag = 0;
 }
 
-
-void blink (uint32_t color){
+void blink(uint32_t color)
+{
 	numberEight(color);
 	start();
 	delay_ms(500);
@@ -486,8 +563,3 @@ void blink (uint32_t color){
 	start();
 	delay_ms(500);
 }
-
-
-
-
-

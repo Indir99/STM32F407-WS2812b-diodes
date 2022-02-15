@@ -23,4 +23,6 @@ void timerLED(uint32_t);
 void timerReset();
 void blink(uint32_t);
 
+void pushButtonCounter(uint32_t, uint8_t);
+
 #endif

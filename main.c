@@ -15,11 +15,8 @@ volatile uint32_t g_irq_cnt = 0;
 volatile uint8_t g_gpioa_irq_state = (IRQ_IDLE);
 volatile uint32_t g_irq_timer = 0;
 volatile uint8_t pbstate = 0;
-
 volatile uint8_t pushButtonState = 0;
 volatile uint8_t pushButtonCoutingWay = 0;
-
-void pushButtonCounter(uint32_t color);
 
 void serviceIRQA(void);
 
@@ -50,7 +47,7 @@ int main()
 	{
 		// timerLED(0xFF0000);
 		//   blink(0xFF00FF);
-		pushButtonCounter(0x0000FF);
+		pushButtonCounter(0x0000FF, pushButtonState);
 		serviceIRQA();
 		//#ifndef USART_ECHO
 		//		chkRxBuffUSART2();
@@ -129,77 +126,5 @@ void serviceIRQA(void)
 	{
 		break;
 	}
-	}
-}
-
-void pushButtonCounter(uint32_t color)
-{
-	switch (pushButtonState)
-	{
-	case (0):
-	{
-		numberZero(color);
-		start();
-		printUSART2("Here");
-		break;
-	}
-	case (1):
-	{
-		numberOne(color);
-		start();
-		printUSART2("Tututut");
-		break;
-	}
-	case (2):
-	{
-		numberTwo(color);
-		start();
-		break;
-	}
-	case (3):
-	{
-		numberThree(color);
-		start();
-		break;
-	}
-	case (4):
-	{
-		numberFour(color);
-		start();
-		break;
-	}
-	case (5):
-	{
-		numberFive(color);
-		start();
-		break;
-	}
-	case (6):
-	{
-		numberSix(color);
-		start();
-		break;
-	}
-	case (7):
-	{
-		numberSeven(color);
-		start();
-		break;
-	}
-	case (8):
-	{
-		numberEight(color);
-		start();
-		break;
-	}
-	case (9):
-	{
-		numberNine(color);
-		start();
-		break;
-	}
-
-	default:
-		break;
 	}
 }
