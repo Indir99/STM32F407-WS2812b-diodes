@@ -46,7 +46,7 @@ $(PROJ_NAME).elf: $(SRCS)
 	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
 	$(SIZE) -B  $(PROJ_NAME).elf
 	ls -l $(PROJ_NAME).bin
-	@./build
+#	@./build
 
 
 clean:

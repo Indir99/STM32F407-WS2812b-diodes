@@ -1,14 +1,29 @@
 #include "display.h"
 #include "usart.h"
 
+
 #define DMA_ARRAY_SIZE 602
 #define PWM_CNT_ARRAY_SIZE 10
+
+void (*number_buffer[10])(uint32_t) = {numberZero,numberOne,numberTwo,numberThree,numberFour,numberFive,numberSix,
+	numberSeven,numberEight,numberNine};
+
+//uint32_t colors_led[6]={0xFF0000,0x00FF00,0x0000FF,0xFFFF00,0xFF00FF,0x00FFFF};
 uint16_t pwm1[PWM_CNT_ARRAY_SIZE] = {0, 2, 5, 11, 23, 50, 109, 235, 509, 999};
 uint16_t pwm2[PWM_CNT_ARRAY_SIZE] = {999, 509, 235, 109, 50, 23, 11, 5, 2, 0};
 // uint8_t numberOne[7]={0,1,2,3,17,18,19};
 uint16_t pwmArray[DMA_ARRAY_SIZE] = {};
 // uint16_t pwmArray2[DMA_ARRAY_SIZE] = {};
 // NUMBERS DESIGN
+uint8_t counter = 0;
+uint8_t timer_flag = 0;
+
+
+
+void ledOFF(){
+	for (int i = 0; i<DMA_ARRAY_SIZE; i++)
+		pwmArray[i]=33;	
+}
 
 void numberZero(uint32_t color)
 {
@@ -78,7 +93,6 @@ void numberOne(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
-//	start();
 }
 
 void numberTwo(uint32_t color)
@@ -112,13 +126,9 @@ void numberTwo(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
-//	start();
+
 }
 	
-	
-	
-
-
 void numberThree(uint32_t color)
 {
 	uint32_t colors[23] = {};
@@ -150,7 +160,6 @@ void numberThree(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
-//	start();
 }
 
 void numberFour(uint32_t color)
@@ -184,7 +193,7 @@ void numberFour(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
-//	start();
+
 }
 
 void numberFive(uint32_t color)
@@ -218,7 +227,6 @@ void numberFive(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
-	start();
 }
 
 void numberSix(uint32_t color)
@@ -252,7 +260,6 @@ void numberSix(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
-	start();
 }
 
 void numberSeven(uint32_t color)
@@ -286,7 +293,6 @@ void numberSeven(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
-	start();
 }
 
 void numberEight(uint32_t color)
@@ -315,7 +321,6 @@ void numberEight(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
-	start();
 }
 
 void numberNine(uint32_t color)
@@ -349,22 +354,16 @@ void numberNine(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
-	start();
 }
 
 void start(){
-	printUSART2("%d \n",DMA_HISR_TCIF6);
 	TIM4->CR1 |= TIM_CR1_CEN;
 	TIM4->EGR &= ~TIM_EGR_UG;
 	//	printUSART2("%d \n",DMA1_Stream6->NDTR);
 	// DMA1_Stream6->NDTR = DMA_ARRAY_SIZE;
 	DMA1_Stream6->CR |= DMA_SxCR_EN;
-	printUSART2("NDTR before LOOP: %d \n", DMA1_Stream6->NDTR);
-	while (DMA1_Stream6->NDTR)
-	{
-		printUSART2("NDTR in LOOP: %d \n", DMA1_Stream6->NDTR);
-	}
-	printUSART2("NDTR after LOOP: %d \n", DMA1_Stream6->NDTR);
+	while (DMA1_Stream6->NDTR){}
+
 	// DMA DISABLE
 	TIM4->CR1 &= ~(0x0001);
 	TIM4->CCR2 = 0x0000;
@@ -372,14 +371,10 @@ void start(){
 	DMA1_Stream6->CR &= ~(0x0000001);
 	TIM4->EGR |= TIM_EGR_UG;
 	DMA1_Stream6->NDTR = DMA_ARRAY_SIZE;
-	printUSART2("NDTR after reinicialization: %d \n", DMA1_Stream6->NDTR); 
 }
-
-
 
 void initDMA()
 {
-
 	// Initialize PWM
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
 	GPIOD->MODER |= 0xAA000000;
@@ -454,5 +449,45 @@ void initDMA()
 										  // - Half Word 16-bit
 	DMA1_Stream6->CR |= DMA_SxCR_DIR_0;	  // Data transfer direction:
 }
+
+void timerLED(uint32_t color){
+	//uint8_t number = 0;
+	if (counter == 0)
+		timer_flag = 1;
+	else if (counter == 10){
+		timer_flag = 0;
+		counter =8;
+	}
+	
+	if (counter < 10 && timer_flag==1){
+		number_buffer[counter](color);	
+		counter ++;
+	}
+	else if (counter > 0 && timer_flag==0){
+		number_buffer[counter](color);	
+		counter--;
+	}
+	
+	start();
+	delay_ms(1000);
+}
+
+void timerReset(){
+	counter = 0;
+	timer_flag = 0;
+}
+
+
+void blink (uint32_t color){
+	numberEight(color);
+	start();
+	delay_ms(500);
+	numberEight(0x000000);
+	start();
+	delay_ms(500);
+}
+
+
+
 
 

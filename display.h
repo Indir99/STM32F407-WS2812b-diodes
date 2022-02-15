@@ -6,6 +6,7 @@
 
 void initDMA();
 void start();
+void ledOFF();
 
 void numberZero(uint32_t);
 void numberOne(uint32_t);
@@ -17,4 +18,9 @@ void numberSix(uint32_t);
 void numberSeven(uint32_t);
 void numberEight(uint32_t);
 void numberNine(uint32_t);
+
+void timerLED(uint32_t);
+void timerReset();
+void blink(uint32_t);
+
 #endif
