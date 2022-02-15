@@ -5,8 +5,7 @@
 #include "delay.h"
 
 void initDMA();
-void enable();
-void disable();
+void start();
 
 void numberZero(uint32_t);
 void numberOne(uint32_t);

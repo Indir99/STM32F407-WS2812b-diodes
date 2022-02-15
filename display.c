@@ -8,7 +8,6 @@ uint16_t pwm2[PWM_CNT_ARRAY_SIZE] = {999, 509, 235, 109, 50, 23, 11, 5, 2, 0};
 // uint8_t numberOne[7]={0,1,2,3,17,18,19};
 uint16_t pwmArray[DMA_ARRAY_SIZE] = {};
 // uint16_t pwmArray2[DMA_ARRAY_SIZE] = {};
-uint8_t counter = 0;
 // NUMBERS DESIGN
 
 void numberZero(uint32_t color)
@@ -43,24 +42,8 @@ void numberZero(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
+//	start();
 
-	TIM4->CR1 |= TIM_CR1_CEN;
-	//	printUSART2("%d \n",DMA1_Stream6->NDTR);
-	// DMA1_Stream6->NDTR = DMA_ARRAY_SIZE;
-	DMA1_Stream6->CR |= DMA_SxCR_EN;
-	printUSART2("NDTR before LOOP: %d \n", DMA1_Stream6->NDTR);
-	while (DMA1_Stream6->NDTR)
-	{
-		printUSART2("NDTR in LOOP: %d \n", DMA1_Stream6->NDTR);
-	}
-	printUSART2("NDTR after LOOP: %d \n", DMA1_Stream6->NDTR);
-	// DMA DISABLE
-	TIM4->CR1 &= ~(0x0001);
-	TIM4->CCR2 = 0x0000;
-	DMA1_Stream6->CR &= ~(0x0000001);
-	DMA1->HIFCR |= 0x00200000;
-	DMA1_Stream6->NDTR = DMA_ARRAY_SIZE;
-	printUSART2("NDTR after reinicialization: %d \n", DMA1_Stream6->NDTR);
 }
 
 void numberOne(uint32_t color)
@@ -95,27 +78,7 @@ void numberOne(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
-	TIM4->CR1 |= TIM_CR1_CEN;
-	//	printUSART2("%d \n",DMA1_Stream6->NDTR);
-	// DMA1_Stream6->NDTR = DMA_ARRAY_SIZE;
-	DMA1_Stream6->CR |= DMA_SxCR_EN;
-	// printUSART2("NDTR before LOOP: %d \n", DMA1_Stream6->NDTR);
-	while (DMA1_Stream6->NDTR)
-	{
-		// printUSART2("NDTR in LOOP: %d \n", DMA1_Stream6->NDTR);
-	}
-	// printUSART2("NDTR after LOOP: %d \n", DMA1_Stream6->NDTR);
-	//  DMA DISABLE
-	TIM4->CR1 &= ~(0x0001);
-	// TIM4->CCR2 = 0x0000;
-	//   DMA1->LIFCR = 0xFFFFFFFF;
-	DMA1_Stream6->CR &= ~(0x0000001);
-	DMA1->HIFCR |= 0x00200000;
-	DMA1_Stream6->PAR = (uint32_t)&TIM4->CCR2;
-	DMA1_Stream6->M0AR = (uint32_t)pwmArray;
-	DMA1_Stream6->NDTR = DMA_ARRAY_SIZE;
-	DMA1_Stream6->CR |= DMA_SxCR_MINC;
-	// printUSART2("NDTR after reinicialization: %d \n", DMA1_Stream6->NDTR);
+//	start();
 }
 
 void numberTwo(uint32_t color)
@@ -149,7 +112,12 @@ void numberTwo(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
+//	start();
 }
+	
+	
+	
+
 
 void numberThree(uint32_t color)
 {
@@ -182,6 +150,7 @@ void numberThree(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
+//	start();
 }
 
 void numberFour(uint32_t color)
@@ -215,6 +184,7 @@ void numberFour(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
+//	start();
 }
 
 void numberFive(uint32_t color)
@@ -248,6 +218,7 @@ void numberFive(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
+	start();
 }
 
 void numberSix(uint32_t color)
@@ -281,6 +252,7 @@ void numberSix(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
+	start();
 }
 
 void numberSeven(uint32_t color)
@@ -314,20 +286,21 @@ void numberSeven(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
+	start();
 }
 
 void numberEight(uint32_t color)
 {
 	uint32_t colors[23] = {};
 
-	for (uint8_t i = 0; i < 23; i++)
+	for (int i = 0; i < 23; i++)
 		colors[i] = color;
 
-	uint8_t indx = 0;
+	int indx = 0;
 
-	for (uint8_t i = 0; i < 23; i++)
+	for (int i = 0; i < 23; i++)
 	{
-		for (uint8_t j = 23; j >= 0; j--)
+		for (int j = 23; j >= 0; j--)
 		{
 			if (colors[i] & (1 << j))
 				pwmArray[indx] = 71;
@@ -338,10 +311,11 @@ void numberEight(uint32_t color)
 		}
 	}
 
-	for (uint8_t i = 552; i < 602; i++)
+	for (int i = 552; i < 602; i++)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
+	start();
 }
 
 void numberNine(uint32_t color)
@@ -375,7 +349,33 @@ void numberNine(uint32_t color)
 		pwmArray[i] = 34;
 
 	delay_ms(10);
+	start();
 }
+
+void start(){
+	printUSART2("%d \n",DMA_HISR_TCIF6);
+	TIM4->CR1 |= TIM_CR1_CEN;
+	TIM4->EGR &= ~TIM_EGR_UG;
+	//	printUSART2("%d \n",DMA1_Stream6->NDTR);
+	// DMA1_Stream6->NDTR = DMA_ARRAY_SIZE;
+	DMA1_Stream6->CR |= DMA_SxCR_EN;
+	printUSART2("NDTR before LOOP: %d \n", DMA1_Stream6->NDTR);
+	while (DMA1_Stream6->NDTR)
+	{
+		printUSART2("NDTR in LOOP: %d \n", DMA1_Stream6->NDTR);
+	}
+	printUSART2("NDTR after LOOP: %d \n", DMA1_Stream6->NDTR);
+	// DMA DISABLE
+	TIM4->CR1 &= ~(0x0001);
+	TIM4->CCR2 = 0x0000;
+	DMA1->HIFCR |= 0x00200000;
+	DMA1_Stream6->CR &= ~(0x0000001);
+	TIM4->EGR |= TIM_EGR_UG;
+	DMA1_Stream6->NDTR = DMA_ARRAY_SIZE;
+	printUSART2("NDTR after reinicialization: %d \n", DMA1_Stream6->NDTR); 
+}
+
+
 
 void initDMA()
 {
@@ -397,7 +397,7 @@ void initDMA()
 		TIM4->CCR2 = 0x0000;
 		TIM4->CCR3 = 0x0056;
 		// TIM4->CCR4 = 0x0056;
-		TIM4->CCR4 = 100;
+		TIM4->CCR4 = 105;
 
 		TIM4->DIER |= TIM_DIER_UDE;
 
@@ -410,11 +410,11 @@ void initDMA()
 		// set active mode high for pulse polarity
 		TIM4->CCER &= ~((TIM_CCER_CC1P) | (TIM_CCER_CC2P) | (TIM_CCER_CC3P) | (TIM_CCER_CC4P));
 		TIM4->CR1 |= (TIM_CR1_ARPE) | (TIM_CR1_URS);
-
+		
 		// update event, reload all config
 		TIM4->EGR |= TIM_EGR_UG;
 
-		// activate capture compare mode
+		// activate capture cmpare mode
 		TIM4->CCER |= (TIM_CCER_CC1E) | (TIM_CCER_CC2E) | (TIM_CCER_CC3E) | (TIM_CCER_CC4E);
 		// start counter
 		// TIM4->CR1 |= TIM_CR1_CEN;
@@ -426,10 +426,7 @@ void initDMA()
 	RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN; // enable DMA1 clock
 
 	DMA1_Stream6->CR = 0x00000000; // disable stream 0 (ADC1)
-	while ((DMA1_Stream6->CR & DMA_SxCR_EN) == DMA_SxCR_EN)
-	{
-	}; // wait until the DMA transfer is completed
-
+	while ((DMA1_Stream6->CR & DMA_SxCR_EN) == DMA_SxCR_EN){}; // wait until the DMA transfer is completed
 	DMA1->LISR = 0x00000000;
 	DMA1->HISR = 0x00000000;
 
@@ -443,7 +440,8 @@ void initDMA()
 	DMA1_Stream6->CR |= DMA_SxCR_CHSEL_1;
 	/* DMA1_Stream2->CR |= 0x0a000000;									// select channel 0 for ADC1 */
 	DMA1_Stream6->CR |= DMA_SxCR_PL;   // select stream priority to very high
-									   // - DMA is flow controller
+										// select stream priority to very high
+									   // - DMA is flow controller							   
 									   // - Peripheral address pointer is fixed
 	DMA1_Stream6->CR |= DMA_SxCR_MINC; // Memory address pointer is incremented
 									   // in accordance with the memory data size
@@ -456,3 +454,5 @@ void initDMA()
 										  // - Half Word 16-bit
 	DMA1_Stream6->CR |= DMA_SxCR_DIR_0;	  // Data transfer direction:
 }
+
+
