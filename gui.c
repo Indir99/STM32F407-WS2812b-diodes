@@ -76,7 +76,8 @@ void writeFrameFour(){
     printFunction(22,60,0,0,"|");    
     printFunction(22,106,0,0,"|");
     
-    printFunction(21,23,0,0,"ANIMATIONS :");
+    printFunction(21,10,0,0,"ANIMATIONS :");
+    printFunction(21,40,0,0,"PERIOD : 2000 ms");
     printFunction(21,75,0,0,"TIMER/COUNTER :");
   
     for(int i=0;i<102;i++)

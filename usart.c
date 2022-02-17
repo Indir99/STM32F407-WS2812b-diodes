@@ -1,10 +1,10 @@
 #include "usart.h"
-volatile char x;
 volatile uint8_t g_usart2_buffer[USART2_BUFFER_SIZE];
 volatile uint16_t g_usart2_widx = 0;
 volatile uint16_t g_usart2_ridx = 0;
 volatile uint8_t state = 0;
 volatile uint8_t arrow = 0;
+volatile uint32_t color=0xFFFFFF;
 
 volatile uint8_t g_usart3_buffer[USART3_BUFFER_SIZE];
 volatile uint16_t g_usart3_widx = 0;
@@ -13,10 +13,11 @@ volatile uint8_t usart3_state = 0;
 
 // ARROWS 
 volatile uint8_t position = 1; 
-volatile char *color[]={"RED","GREEN","BLUE","YELLOW","PURPLE","CYAN"};
+volatile char *led_color[]={"RED","GREEN","BLUE","YELLOW","PURPLE","CYAN"};
 volatile char *mode[]={"OFF","ON","TIMER","COUNTER","ANIMATIONS"};
-volatile char *animations[]={"CIRCLE","UP_DOWN","BLINK","SNAKE"};
+volatile char *animations[]={"BLINK","DotCircle","SNAKE","ANIM1","PWMBlue","CIRCLE"};
 volatile char *timer[]={"OFF","ON"};
+volatile uint16_t period=100;
 
 volatile uint8_t ind_color=0;
 volatile uint8_t ind_mode=0;
@@ -28,13 +29,16 @@ volatile uint8_t flag_color[]={1,0};
 volatile uint8_t flag_mode[]={1,0};
 volatile uint8_t flag_anim[]={1,0};
 volatile uint8_t flag_timer[]={1,0};
+volatile uint8_t flag_period[]={1,0};
 
 // ARRAY SIZE - 1
 volatile uint8_t numColor= 5;
 volatile uint8_t numMode=4;
-volatile uint8_t numAnim=3;
+volatile uint8_t numAnim=5;
 volatile uint8_t numTimer=1;
 
+
+volatile uint32_t cnt[2] = {};
 
 
 // Super code:
@@ -308,7 +312,7 @@ void USART2_IRQHandler(void)
 
 #endif
 
-void chkRxBuffUSART2(void)
+uint32_t* chkRxBuffUSART2(void)
 {
 	if (g_usart2_ridx != g_usart2_widx)
 	{
@@ -337,8 +341,15 @@ void chkRxBuffUSART2(void)
 							if(ind_anim == numAnim)
 								flag_anim[0] = 0;
 						}	
+					// PERIOD CHANGE UP
+						if(position == 4 && flag_period[0] == 1){
+							period+=100;
+							flag_period[1] = 1;
+							if(period == 2000)
+								flag_period[0] = 0;
+						}
 					// TIMER/COUNTER CHANGE UP
-						if(position == 4 && flag_timer[0] == 1){
+						if(position == 5 && flag_timer[0] == 1){
 							++ind_timer;
 							flag_timer[1] = 1;
 							if(ind_timer == numTimer)
@@ -367,9 +378,16 @@ void chkRxBuffUSART2(void)
 							if (ind_anim == 0)
 								flag_anim[1] = 0;
 						}
-						// TIMER/COUNTER CHANGE DOWN
+						// PERIOD CHANGE DOWN
+						if (position == 4 && flag_period[1] == 1){
+							period-=100;
+							flag_period[0] = 1;
+							if (period == 100)
+								flag_period[1] = 0;
+						}
 						
-						if (position == 4 && flag_timer[1] == 1){
+						// TIMER/COUNTER CHANGE DOWN
+						if (position == 5 && flag_timer[1] == 1){
 							--ind_timer;
 							flag_timer[0] = 1;
 							if (ind_timer == 0)
@@ -377,7 +395,7 @@ void chkRxBuffUSART2(void)
 						}							
 					}
 				else if (g_usart2_buffer[g_usart2_ridx] == 'C'){
-						if (position != 4)
+						if (position != 5)
 							++position;
 					}
 				else if (g_usart2_buffer[g_usart2_ridx] == 'D'){
@@ -388,62 +406,141 @@ void chkRxBuffUSART2(void)
 			}
 		}
 	}
-	
-
+			
 		
-
-	
-	if (ind_color == 0)
+	if (ind_color == 0){
 		writeFrameTwo(31);
-	else if (ind_color == 1)
+		color = 0x00FF00;
+	}
+	else if (ind_color == 1){
 		writeFrameTwo(32);
-	else if(ind_color == 2)
+		color = 0xFF0000;
+	}
+	else if(ind_color == 2){
 		writeFrameTwo(34);
-	else if(ind_color == 3)
+		color = 0x0000FF;
+	}
+	else if(ind_color == 3){
 		writeFrameTwo(33);
-	else if(ind_color == 4)
+		color = 0xFFFF00;
+	}
+	else if(ind_color == 4){
 		writeFrameTwo(35);
-	else
+		color = 0x00FFFF;
+	}
+	else{
 		writeFrameTwo(36);
+		color = 0xFF00FF;
+	}
+	
+	cnt[1]= color;
 	
 	printFunction(10,62,0,0,"          ");
 	printFunction(15,60,0,0,"          ");
-	printFunction(21,36,0,0,"          ");
+	printFunction(21,23,0,0,"          ");
 	printFunction(21,91,0,0,"          ");
+	printFunction(21,49,0,0,"          ");
 	
 	
 	switch(position){
 		case 1:		
-			printFunction(10,62,0,41,color[ind_color]);
+			printFunction(10,62,0,41,led_color[ind_color]);
 			printFunction(15,60,0,0,mode[ind_mode]);
-			printFunction(21,36,0,0,animations[ind_anim]);
+			printFunction(21,23,0,0,animations[ind_anim]);
+			printUSART2("\e[21;49f%d ms",period);
 			printFunction(21,91,0,0,timer[ind_timer]);		
 			break;
 			
 		case 2:
-			printFunction(10,62,0,0,color[ind_color]);
+			printFunction(10,62,0,0,led_color[ind_color]);
 			printFunction(15,60,0,41,mode[ind_mode]);
-			printFunction(21,36,0,0,animations[ind_anim]);
+			printFunction(21,23,0,0,animations[ind_anim]);
+			printUSART2("\e[21;49f%d ms",period);
 			printFunction(21,91,0,0,timer[ind_timer]);
 			break;
 		case 3:
-			printFunction(10,62,0,0,color[ind_color]);
+			printFunction(10,62,0,0,led_color[ind_color]);
 			printFunction(15,60,0,0,mode[ind_mode]);
-			printFunction(21,36,0,41,animations[ind_anim]);
+			printFunction(21,23,0,41,animations[ind_anim]);
+			printUSART2("\e[21;49f%d ms",period);
 			printFunction(21,91,0,0,timer[ind_timer]);
 			break;
-		case 4:
-			printFunction(10,62,0,0,color[ind_color]);
+		case 4:	
+			printFunction(10,62,0,0,led_color[ind_color]);
 			printFunction(15,60,0,0,mode[ind_mode]);
-			printFunction(21,36,0,0,animations[ind_anim]);
+			printFunction(21,23,0,0,animations[ind_anim]);
+			printUSART2("\e[21;49f\e[41m%d ms\e[0m",period);
+			printFunction(21,91,0,0,timer[ind_timer]);
+			break;
+		case 5:
+			printFunction(10,62,0,0,led_color[ind_color]);
+			printFunction(15,60,0,0,mode[ind_mode]);
+			printFunction(21,23,0,0,animations[ind_anim]);
+			printUSART2("\e[21;49f%d ms",period);
 			printFunction(21,91,0,41,timer[ind_timer]);
 	}	
-		
+	
+	if (ind_mode == 0){
+		ledOFF();
+		start();
+	}
+	else if (ind_mode == 1){
+		numberEight(color);
+		start();
+	}
+	else if (ind_mode == 2){
+		if (ind_timer == 1){
+			timerLED(color,period);
+			start();
+		}
+		else{
+			timerReset();
+		}
+
+	}
+	else if (ind_mode == 3){
+		if (ind_timer == 1)
+			cnt[0] = 1;	
+		else{
+			cnt[0] = 0;
+			timerReset();
+		}
+	}
+	else{
+		if (ind_anim == 0)
+			blink(color,period);
+		else if (ind_anim == 1)
+			DotCircle(color,period);
+		else if (ind_anim == 2)
+			snake(period);
+		else if (ind_anim == 3)
+			animation1(color,period);
+		else if (ind_anim == 4)
+			pwmBlue(period);
+		else
+			Circle(period);
+
+	}
+	
+	if (ind_mode == 3){
+		if (ind_timer == 1)
+			cnt[0] = 1;	
+		else
+			cnt[0] = 0;
+	}
+	else
+	{
+		cnt[0] = 0;
+	}
+	
+	
+	
 		if (g_usart2_ridx >= (USART2_BUFFER_SIZE))
 		{
 			g_usart2_ridx = 0;
 		}
 	
+	return cnt;
 }
 
 
@@ -728,3 +825,11 @@ void chkRxBuffUSART3(void)
 		usart3_state = 0;
 	}
 }
+
+
+
+
+
+
+
+

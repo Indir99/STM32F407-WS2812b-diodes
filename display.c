@@ -23,6 +23,14 @@ void ledOFF()
 		pwmArray[i] = 34;
 }
 
+void ledON(uint32_t color)
+{
+	numberEight(color);
+	
+}
+
+
+
 void numberZero(uint32_t color)
 {
 
@@ -359,14 +367,12 @@ void pushButtonCounter(uint32_t color, uint8_t buttonState)
 	{
 		numberZero(color);
 		start();
-		printUSART2("Here");
 		break;
 	}
 	case (1):
 	{
 		numberOne(color);
 		start();
-		printUSART2("Tututut");
 		break;
 	}
 	case (2):
@@ -522,7 +528,7 @@ void initDMA()
 	DMA1_Stream6->CR |= DMA_SxCR_DIR_0;	  // Data transfer direction:
 }
 
-void timerLED(uint32_t color)
+void timerLED(uint32_t color,uint16_t delay)
 {
 	// uint8_t number = 0;
 	if (counter == 0)
@@ -545,26 +551,29 @@ void timerLED(uint32_t color)
 	}
 
 	start();
-	delay_ms(1000);
+	delay_ms(delay);
 }
 
 void timerReset()
 {
 	counter = 0;
 	timer_flag = 0;
+	ledOFF();
+	start();
 }
 
-void blink(uint32_t color)
+void blink(uint32_t color,uint16_t delay)
 {
 	numberEight(color);
+	delay_ms(delay);
 	start();
-	delay_ms(500);
-	numberEight(0x000000);
+	ledOFF();
+	delay_ms(delay);
 	start();
-	delay_ms(500);
+	
 }
 
-void DotCircle(uint32_t color){
+void DotCircle(uint32_t color,uint16_t delay){
 	uint8_t cnt=0;
 	uint32_t colors[1]={color};
 	while(1){
@@ -593,13 +602,13 @@ void DotCircle(uint32_t color){
 	for (int i = 552; i < 602; i++)
 	pwmArray[i] = 34;
 
-	delay_ms(40);
+	delay_ms(delay);
 	start();
 	cnt ++;
 	}
 		
 }
-void animation1(uint32_t color){
+void animation1(uint32_t color,uint16_t delay){
 //	uint32_t new_color = color / 12;
 	uint32_t colors[1]={color};
 	uint8_t cnt = 0;
@@ -702,13 +711,13 @@ void animation1(uint32_t color){
 			indxR=24*led_right;
 		}
 		
-		delay_ms(50);
+		delay_ms(delay);
 		start();	
 	}
 	
 }
 
-void snake(){
+void snake(uint16_t delay){
 	uint32_t colors[3]={0x0F0000,0x000F00,0x00000F};
 	uint8_t led_cnt = 0;
 	uint16_t indx=0;
@@ -817,15 +826,15 @@ void snake(){
 		
 		indx=0;
 		led_cnt++;
-		delay_ms(100);
+		delay_ms(delay);
 		start();
 	}
 			
 	
 }
 
-void pwmBlue(){
-	uint32_t color[1]={0x0000FF};
+void pwmBlue(uint16_t delay){
+	uint32_t colors[1]={0x0000FF};
 	float values[11]={0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1};
 	uint32_t up[10]={};
 	uint32_t down[10]={};
@@ -834,23 +843,74 @@ void pwmBlue(){
 	while(1){
 		
 		for (int i=0,j=9; i<10,j>=0;i++,j--){
-			up[i]=color[0]*values[i];
-			down[i]=color[0]*values[j+1];
+			up[i]=colors[0]*values[i];
+			down[i]=colors[0]*values[j+1];
 		}
 		for(int i=0;i<10;i++){
 			numberEight(up[i]);
 			start();
-			delay_ms(200);
+			delay_ms(delay);
 		}
 		
 		for(int i=0;i<10;i++){
 			numberEight(down[i]);
 			start();
-			delay_ms(200);
+			delay_ms(delay);
 		}
 		
 	}
-	
+}
+
+void Circle(uint16_t period){
+	uint32_t color_red[5]={0x003200,0x006400,0x009600,0x00C800,0x00FF00};
+	uint32_t color_blue[5]={0x000032,0x000064,0x000096,0x0000C8,0x0000FF};
+	uint32_t color_green[5]={0x320000,0x640000,0x960000,0xC80000,0xFF0000};
+	uint32_t color_yellow[5]={0x323200,0x646400,0x969600,0xC8C800,0xFFC800};
+	uint32_t arraytmp[DMA_ARRAY_SIZE]={};
+	ledOFF();
+	int indx_red = 0;
+	int indx_blue=120;
+	int indx_green=240;
+	int indx_yellow=360;
+	for (int i=0; i<5; i++){
+		for (int j = 23; j >= 0; j--){
+			if (color_red[i] & (1 << j))
+				pwmArray[indx_red++] = 71;
+			else
+				pwmArray[indx_red++] = 34;
+				
+			if (color_blue[i] & (1 << j))
+				pwmArray[indx_blue++] = 71;
+			else
+				pwmArray[indx_blue++] = 34;
+				
+			if (color_green[i] & (1 << j))
+				pwmArray[indx_green++] = 71;
+			else
+				pwmArray[indx_green++] = 34;	
+			
+			if (color_yellow[i] & (1 << j))
+				pwmArray[indx_yellow++] = 71;
+			else
+				pwmArray[indx_yellow++] = 34;	
+		}	
+	}
+	start();
+	delay_ms(period);
+	while(1){
+		
+		for(int i=0;i<DMA_ARRAY_SIZE;i++)
+			arraytmp[i]=pwmArray[i];
+		
+		for(int i=456,j=0;i<480,j<24;i++,j++)
+			pwmArray[j]=arraytmp[i];
+		
+		for(int i=24,j=0; i<480,j<456; i++,j++)
+			pwmArray[i]=arraytmp[j];
+			
+		start();
+		delay_ms(period);	
+	}
 }
 
 

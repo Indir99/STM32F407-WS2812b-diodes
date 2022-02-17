@@ -27,7 +27,7 @@ void printUSART2(char *str, ...);
 void sprintUSART2(uint8_t *str);
 uint8_t getcharUSART2();
 
-void chkRxBuffUSART2(void);
+uint32_t* chkRxBuffUSART2(void);
 void enIrqUSART2(void);
 
 // Function for text printing in terminal

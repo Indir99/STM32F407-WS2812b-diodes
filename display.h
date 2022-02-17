@@ -7,6 +7,7 @@
 void initDMA();
 void start();
 void ledOFF();
+void ledON(uint32_t);
 
 void numberZero(uint32_t);
 void numberOne(uint32_t);
@@ -19,13 +20,14 @@ void numberSeven(uint32_t);
 void numberEight(uint32_t);
 void numberNine(uint32_t);
 
-void timerLED(uint32_t);
+void timerLED(uint32_t,uint16_t);
 void timerReset();
-void blink(uint32_t);
-void DotCircle(uint32_t);
-void animation1(uint32_t);
-void snake();
-void pwmBlue();
+void blink(uint32_t,uint16_t);
+void DotCircle(uint32_t,uint16_t);
+void Circle(uint16_t);
+void animation1(uint32_t,uint16_t);
+void snake(uint16_t);
+void pwmBlue(uint16_t);
 
 void pushButtonCounter(uint32_t, uint8_t);
 

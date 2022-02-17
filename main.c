@@ -17,6 +17,7 @@ volatile uint32_t g_irq_timer = 0;
 volatile uint8_t pbstate = 0;
 volatile uint8_t pushButtonState = 0;
 volatile uint8_t pushButtonCoutingWay = 0;
+volatile uint32_t* indicator = 0;
 
 void serviceIRQA(void);
 
@@ -28,13 +29,19 @@ int main()
 	enIrqUSART2();
 	initSYSTIMER();
 	// gui printing
-	// writeGUI();
-
+	 writeGUI();
+	
 	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;		 // enable clock on SYSCFG register
 	SYSCFG->EXTICR[0] = SYSCFG_EXTICR1_EXTI0_PA; // select PA 0 as interrupt source p259
+	//SYSCFG->EXTICR[0] = SYSCFG_EXTICR1_EXTI2_PA; // select PA 2 as interrupt source p259
+//	SYSCFG->EXTICR[0] = SYSCFG_EXTICR1_EXTI3_PA; // select PA 3 as interrupt source p259
 	EXTI->IMR = EXTI_IMR_MR0;					 // enable interrupt on EXTI_Line0
+//	EXTI->IMR = EXTI_IMR_MR2;					 // enable interrupt on EXTI_Line0
+	//EXTI->IMR = EXTI_IMR_MR3;					 // enable interrupt on EXTI_Line0
 	EXTI->EMR &= ~EXTI_EMR_MR0;					 // disable event on EXTI_Line0
+//	EXTI->EMR &= ~EXTI_EMR_MR3;					 // disable event on EXTI_Line0
 	EXTI->RTSR = EXTI_RTSR_TR0;
+//	EXTI->RTSR = EXTI_RTSR_TR3;
 	EXTI->FTSR = 0x00000000;
 
 	NVIC_EnableIRQ(EXTI0_IRQn);
@@ -45,25 +52,21 @@ int main()
 	GPIOA->OTYPER |= 0x00000000;
 	while (1)
 	{
-		// timerLED(0xFF0000);
-		//   blink(0xFF00FF);
-		
-		
-		//NOVE 
-		//pwmBlue();
-		//animation1(0x0000FF);
-		//snake();
-		
-		
-		
-		
-		//DotCircle(0xFF0000);
-	//	pushButtonCounter(0x0000FF, pushButtonState);
-	//	serviceIRQA();
-		//#ifndef USART_ECHO
-		//		chkRxBuffUSART2();
-		//	#endif
-		// delay_ms(100);
+		serviceIRQA();
+		if (indicator[0] == 1){
+			pushButtonCounter(indicator[1], pushButtonState);
+		}
+		else
+		{
+			pbstate = 0;
+			pushButtonState = 0;
+			pushButtonCoutingWay = 0;
+		}
+					
+		#ifndef USART_ECHO
+			indicator = chkRxBuffUSART2();
+		#endif
+		 delay_ms(100);
 	}
 	return 0;
 }
@@ -71,8 +74,10 @@ int main()
 #ifdef IRQ_CNT
 void EXTI0_IRQHandler(void)
 {
+
 	if ((EXTI->PR & EXTI_PR_PR0) == EXTI_PR_PR0) // EXTI_Line0 interrupt pending?
 	{
+		
 		if (g_gpioa_irq_state == (IRQ_IDLE))
 		{
 			// GPIOD->ODR ^= 0x5000; // Toggle the pin
@@ -111,9 +116,6 @@ void serviceIRQA(void)
 			g_irq_cnt++;
 			pushButtonState--;
 		}
-
-		// printUSART2("ACTIVE \n");
-
 		g_gpioa_irq_state = (IRQ_WAIT4LOW);
 		break;
 	}
