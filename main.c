@@ -47,8 +47,19 @@ int main()
 	{
 		// timerLED(0xFF0000);
 		//   blink(0xFF00FF);
-		pushButtonCounter(0x0000FF, pushButtonState);
-		serviceIRQA();
+		
+		
+		//NOVE 
+		//pwmBlue();
+		//animation1(0x0000FF);
+		//snake();
+		
+		
+		
+		
+		//DotCircle(0xFF0000);
+	//	pushButtonCounter(0x0000FF, pushButtonState);
+	//	serviceIRQA();
 		//#ifndef USART_ECHO
 		//		chkRxBuffUSART2();
 		//	#endif

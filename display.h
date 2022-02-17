@@ -22,6 +22,10 @@ void numberNine(uint32_t);
 void timerLED(uint32_t);
 void timerReset();
 void blink(uint32_t);
+void DotCircle(uint32_t);
+void animation1(uint32_t);
+void snake();
+void pwmBlue();
 
 void pushButtonCounter(uint32_t, uint8_t);
 
