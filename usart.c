@@ -38,7 +38,7 @@ volatile uint8_t numAnim=5;
 volatile uint8_t numTimer=1;
 
 
-volatile uint32_t cnt[2] = {};
+volatile uint32_t ret[2] = {};
 
 
 // Super code:
@@ -433,7 +433,7 @@ uint32_t* chkRxBuffUSART2(void)
 		color = 0xFF00FF;
 	}
 	
-	cnt[1]= color;
+	ret[1]= color;
 	
 	printFunction(10,62,0,0,"          ");
 	printFunction(15,60,0,0,"          ");
@@ -500,19 +500,25 @@ uint32_t* chkRxBuffUSART2(void)
 	}
 	else if (ind_mode == 3){
 		if (ind_timer == 1)
-			cnt[0] = 1;	
+			ret[0] = 1;	
 		else{
-			cnt[0] = 0;
+			ret[0] = 0;
 			timerReset();
 		}
 	}
 	else{
-		if (ind_anim == 0)
+		if (ind_anim == 0){
 			blink(color,period);
-		else if (ind_anim == 1)
+			DotCircleReset();
+		}
+		else if (ind_anim == 1){
 			DotCircle(color,period);
-		else if (ind_anim == 2)
+			snakeReset();
+		}
+		else if (ind_anim == 2){
 			snake(period);
+			DotCircleReset();
+		}
 		else if (ind_anim == 3)
 			animation1(color,period);
 		else if (ind_anim == 4)
@@ -524,13 +530,13 @@ uint32_t* chkRxBuffUSART2(void)
 	
 	if (ind_mode == 3){
 		if (ind_timer == 1)
-			cnt[0] = 1;	
+			ret[0] = 1;	
 		else
-			cnt[0] = 0;
+			ret[0] = 0;
 	}
 	else
 	{
-		cnt[0] = 0;
+		ret[0] = 0;
 	}
 	
 	
@@ -540,7 +546,7 @@ uint32_t* chkRxBuffUSART2(void)
 			g_usart2_ridx = 0;
 		}
 	
-	return cnt;
+	return ret;
 }
 
 

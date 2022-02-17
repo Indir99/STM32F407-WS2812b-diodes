@@ -13,9 +13,12 @@ uint16_t pwm2[PWM_CNT_ARRAY_SIZE] = {999, 509, 235, 109, 50, 23, 11, 5, 2, 0};
 // uint8_t numberOne[7]={0,1,2,3,17,18,19};
 uint16_t pwmArray[DMA_ARRAY_SIZE] = {};
 // uint16_t pwmArray2[DMA_ARRAY_SIZE] = {};
+
 // NUMBERS DESIGN
+uint8_t cnt_dc=0;
 uint8_t counter = 0;
 uint8_t timer_flag = 0;
+
 
 void ledOFF()
 {
@@ -573,19 +576,27 @@ void blink(uint32_t color,uint16_t delay)
 	
 }
 
+
+void DotCircleReset(){
+	cnt_dc= 0;
+	ledOFF();
+}
+
 void DotCircle(uint32_t color,uint16_t delay){
-	uint8_t cnt=0;
+	//uint8_t cnt=0;
 	uint32_t colors[1]={color};
-	while(1){
-		if (cnt > 19) 
-			cnt = 0;
+	
+		if (cnt_dc > 19){ 
+			cnt_dc = 0;
+			DotCircleReset();
+		}
 		int indx = 0;
 
 		for (int i = 0; i < 23; i++)
 		{
 			for (int j = 23; j >= 0; j--)
 			{
-				if (i == cnt)
+				if (i == cnt_dc)
 				{
 					if (colors[i] & (1 << j))
 						pwmArray[indx] = 71;
@@ -600,14 +611,14 @@ void DotCircle(uint32_t color,uint16_t delay){
 		}
 		
 	for (int i = 552; i < 602; i++)
-	pwmArray[i] = 34;
+		pwmArray[i] = 34;
 
 	delay_ms(delay);
 	start();
-	cnt ++;
-	}
-		
+	cnt_dc++;	
 }
+
+
 void animation1(uint32_t color,uint16_t delay){
 //	uint32_t new_color = color / 12;
 	uint32_t colors[1]={color};
@@ -717,121 +728,115 @@ void animation1(uint32_t color,uint16_t delay){
 	
 }
 
+uint8_t led_cntS = 0;
+uint16_t indxS=0;
+uint16_t indx1S=24*1;
+uint16_t indx2S=24*2;
+uint16_t indx3S=24*3;
+uint8_t flagS = 0;
+	
+void snakeReset(){
+	led_cntS = 0;
+	indxS=0;
+	indx1S=24*1;
+	indx2S=24*2;
+	indx3S=24*3;
+	flagS = 0;
+}
+
 void snake(uint16_t delay){
 	uint32_t colors[3]={0x0F0000,0x000F00,0x00000F};
-	uint8_t led_cnt = 0;
-	uint16_t indx=0;
-	uint16_t indx1=24*1;
-	uint16_t indx2=24*2;
-	uint16_t indx3=24*3;
-	uint8_t flag = 0;
-	
 	ledOFF();
-	
-	while(1){
 		
-		if (led_cnt == 26){
-			led_cnt=0;
-			indx1=24*1;
-			indx2=24*2;
-			indx3=24*3;
-			flag = 0;
-			
-			for (int i = 0; i < 602; i++)
-				pwmArray[i] = 34;	
-		}
-						
-		if (led_cnt == 0){
-			for (int j = 23; j >= 0; j--)
-			{
-				if (colors[0] & (1 << j))
-					pwmArray[indx++] = 71;
-				else
-					pwmArray[indx++] = 34;
-			}
-		}
-		else if (led_cnt == 1){
-			for (int j = 23; j >= 0; j--)
-			{
-				if (colors[1] & (1 << j))
-					pwmArray[indx++] = 71;
-				else
-					pwmArray[indx++] = 34;
-			}
-			
-			for (int j = 23; j >= 0; j--)
-			{
-				if (colors[0] & (1 << j))
-					pwmArray[indx++] = 71;
-				else
-					pwmArray[indx++] = 34;
-			}	
-		}
-		else if (led_cnt == 2){
-			for (int j = 23; j >= 0; j--)
-			{
-				if (colors[2] & (1 << j))
-					pwmArray[indx++] = 71;
-				else
-					pwmArray[indx++] = 34;
-			}
-			
-			for (int j = 23; j >= 0; j--)
-			{
-				if (colors[1] & (1 << j))
-					pwmArray[indx++] = 71;
-				else
-					pwmArray[indx++] = 34;
-			}	
-			
-			for (int j = 23; j >= 0; j--)
-			{
-				if (colors[0] & (1 << j))
-					pwmArray[indx++] = 71;
-				else
-					pwmArray[indx++] = 34;
-			}	
-		}
-		else{
-			flag = 1;
-		}
-		
-		if(flag == 1){
-			ledOFF();
-				
-			for (int j = 23; j >= 0; j--)
-			{
-				if (colors[2] & (1 << j))
-					pwmArray[indx1++] = 71;
-				else
-					pwmArray[indx1++] = 34;
-			}
-			
-			for (int j = 23; j >= 0; j--)
-			{
-				if (colors[1] & (1 << j))
-					pwmArray[indx2++] = 71;
-				else
-					pwmArray[indx2++] = 34;
-			}	
-			
-			for (int j = 23; j >= 0; j--)
-			{
-				if (colors[0] & (1 << j))
-					pwmArray[indx3++] = 71;
-				else
-					pwmArray[indx3++] = 34;
-			}	
-		}
-		
-		indx=0;
-		led_cnt++;
-		delay_ms(delay);
-		start();
+	if (led_cntS == 26){
+		snakeReset();
+		printUSART2("aabbcc");
 	}
+						
+	if (led_cntS == 0){
+		for (int j = 23; j >= 0; j--)
+		{
+			if (colors[0] & (1 << j))
+				pwmArray[indxS++] = 71;
+			else
+				pwmArray[indxS++] = 34;
+		}
+	}
+	else if (led_cntS == 1){
+		for (int j = 23; j >= 0; j--){
+			if (colors[1] & (1 << j))
+				pwmArray[indxS++] = 71;
+			else
+				pwmArray[indxS++] = 34;
+		}
 			
-	
+		for (int j = 23; j >= 0; j--){
+				if (colors[0] & (1 << j))
+					pwmArray[indxS++] = 71;
+				else
+					pwmArray[indxS++] = 34;
+			}	
+		}
+		else if (led_cntS == 2){
+			for (int j = 23; j >= 0; j--)
+			{
+				if (colors[2] & (1 << j))
+					pwmArray[indxS++] = 71;
+				else
+					pwmArray[indxS++] = 34;
+			}
+			
+		for (int j = 23; j >= 0; j--){
+			if (colors[1] & (1 << j))
+				pwmArray[indxS++] = 71;
+			else
+				pwmArray[indxS++] = 34;
+		}	
+			
+		for (int j = 23; j >= 0; j--){
+			if (colors[0] & (1 << j))
+				pwmArray[indxS++] = 71;
+			else
+				pwmArray[indxS++] = 34;
+		}
+	}	
+	else{
+		flagS = 1;
+	}
+		
+	if(flagS == 1){
+		ledOFF();	
+		for (int j = 23; j >= 0; j--){
+			if (colors[2] & (1 << j))
+				pwmArray[indx1S++] = 71;
+			else
+				pwmArray[indx1S++] = 34;
+		}
+			
+		for (int j = 23; j >= 0; j--)
+		{
+			if (colors[1] & (1 << j))
+				pwmArray[indx2S++] = 71;
+			else
+				pwmArray[indx2S++] = 34;
+		}	
+			
+		for (int j = 23; j >= 0; j--)
+		{
+			if (colors[0] & (1 << j))
+				pwmArray[indx3S++] = 71;
+			else
+				pwmArray[indx3S++] = 34;
+		}	
+	}
+		
+	indxS=0;
+	//led_cntS++;
+	delay_ms(delay);
+	start();
+	led_cntS++;
 }
+	
 
 void pwmBlue(uint16_t delay){
 	uint32_t colors[1]={0x0000FF};

@@ -29,6 +29,19 @@ void animation1(uint32_t,uint16_t);
 void snake(uint16_t);
 void pwmBlue(uint16_t);
 
+
+//RESET
+void DotCircleReset();
+void snakeReset();
+
+
+
+
+
+
+
+
+
 void pushButtonCounter(uint32_t, uint8_t);
 
 #endif

@@ -66,7 +66,7 @@ int main()
 		#ifndef USART_ECHO
 			indicator = chkRxBuffUSART2();
 		#endif
-		 delay_ms(100);
+		 delay_ms(10);
 	}
 	return 0;
 }
