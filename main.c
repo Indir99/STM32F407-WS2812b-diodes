@@ -33,15 +33,9 @@ int main()
 	
 	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;		 // enable clock on SYSCFG register
 	SYSCFG->EXTICR[0] = SYSCFG_EXTICR1_EXTI0_PA; // select PA 0 as interrupt source p259
-	//SYSCFG->EXTICR[0] = SYSCFG_EXTICR1_EXTI2_PA; // select PA 2 as interrupt source p259
-//	SYSCFG->EXTICR[0] = SYSCFG_EXTICR1_EXTI3_PA; // select PA 3 as interrupt source p259
 	EXTI->IMR = EXTI_IMR_MR0;					 // enable interrupt on EXTI_Line0
-//	EXTI->IMR = EXTI_IMR_MR2;					 // enable interrupt on EXTI_Line0
-	//EXTI->IMR = EXTI_IMR_MR3;					 // enable interrupt on EXTI_Line0
 	EXTI->EMR &= ~EXTI_EMR_MR0;					 // disable event on EXTI_Line0
-//	EXTI->EMR &= ~EXTI_EMR_MR3;					 // disable event on EXTI_Line0
 	EXTI->RTSR = EXTI_RTSR_TR0;
-//	EXTI->RTSR = EXTI_RTSR_TR3;
 	EXTI->FTSR = 0x00000000;
 
 	NVIC_EnableIRQ(EXTI0_IRQn);
@@ -69,7 +63,7 @@ int main()
 			indicator = chkRxBuffUSART2();
 		#endif
 		 
-		 delay_ms(10);
+		 delay_ms(50);
 	 
 	}
 	return 0;

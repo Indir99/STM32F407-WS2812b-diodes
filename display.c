@@ -636,7 +636,6 @@ void DotCircle(uint32_t color,uint16_t delay){
 
 void animation1(uint32_t color,uint16_t delay){
 	uint32_t colors[1]={color};
-	
 	if (numLed>10 && flag == 0){
 		indxLast =24*15;
 		indxL = 24*16;
@@ -725,7 +724,7 @@ void animation1(uint32_t color,uint16_t delay){
 	
 void snake(uint16_t delay){
 	uint32_t colors[3]={0x0F0000,0x000F00,0x00000F};
-	ledOFF();
+	//ledOFF();
 	if (led_cntS == 25){
 		snakeReset();
 	}
@@ -812,14 +811,13 @@ void snake(uint16_t delay){
 	delay_ms(delay);
 	start();
 }
-	
+
 void pwmBlue(uint16_t delay){
 	uint32_t colors[1]={0x0000FF};
 	float values[11]={0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1};
 	uint32_t up[10]={};
 	uint32_t down[10]={};
-	ledOFF();
-			
+	ledOFF();	
 	for (int i=0,j=9; i<10,j>=0;i++,j--){
 		up[i]=colors[0]*values[i];
 		down[i]=colors[0]*values[j+1];
@@ -839,7 +837,7 @@ void pwmBlue(uint16_t delay){
 }
 
 void Circle(uint16_t period){
-
+	
 	for(int i=0;i<DMA_ARRAY_SIZE;i++){
 		arraytmp[i]=pwmArray[i];
 	}
@@ -850,7 +848,7 @@ void Circle(uint16_t period){
 	for(int i=24,j=0; i<480,j<456; i++,j++){
 		pwmArray[i]=arraytmp[j];
 	}
-			
+		
 	delay_ms(period);		
 	start();
 }	
@@ -966,6 +964,7 @@ void snakeReset(){
 	indx2S=24*2;
 	indx3S=24*3;
 	flagS = 0;
+	ledOFF();
 }
 
 void animation1Reset(){
@@ -979,7 +978,6 @@ void animation1Reset(){
 	indxLast =24*15;
 	indxR=24*6;
 	indxL=24*led_left;
-	
 	ledOFF();
 }
 

@@ -39,6 +39,9 @@ volatile uint8_t numTimer=1;
 
 volatile uint32_t ret[2] = {};
 volatile uint8_t flagCircle=0;
+volatile uint8_t flagAnim1=0;
+volatile uint8_t flagCounter=0;
+volatile uint8_t flagTimer=0;
 
 
 // Super code:
@@ -331,6 +334,10 @@ uint32_t* chkRxBuffUSART2(void)
 						if(position == 2 && flag_mode[0] == 1){
 							++ind_mode;
 							flag_mode[1] = 1;
+							if (ind_mode == 3)
+								flagCounter =1;
+							if (ind_mode == 1 || ind_mode == 3)
+								flagTimer = 1;
 							if(ind_mode == numMode)
 								flag_mode[0] = 0;
 						}					
@@ -339,6 +346,8 @@ uint32_t* chkRxBuffUSART2(void)
 							++ind_anim;
 							if (ind_anim == 5)
 								flagCircle = 1;
+							if (ind_anim == 3)
+								flagAnim1 = 1;
 							flag_anim[1] = 1;
 							if(ind_anim == numAnim)
 								flag_anim[0] = 0;
@@ -370,6 +379,10 @@ uint32_t* chkRxBuffUSART2(void)
 						if (position == 2 && flag_mode[1] == 1){
 							--ind_mode;
 							flag_mode[0] = 1;
+							if (ind_mode == 3)
+								flagCounter =1;
+							if (ind_mode == 1 || ind_mode == 3)
+								flagTimer = 1;
 							if (ind_mode == 0)
 								flag_mode[1] = 0;
 						}						
@@ -378,6 +391,8 @@ uint32_t* chkRxBuffUSART2(void)
 							--ind_anim;
 							if (ind_anim == 5)
 								flagCircle=1;
+							else if (ind_anim == 3)
+								flagAnim1 =1;
 							flag_anim[0] = 1;
 							if (ind_anim == 0)
 								flag_anim[1] = 0;
@@ -483,12 +498,21 @@ uint32_t* chkRxBuffUSART2(void)
 			printFunction(21,91,0,41,timer[ind_timer]);
 	}	
 	
-	
-	
 	if(flagCircle == 1 ){
-		CircleStart(period);
+		animation2Reset();
+		if (ind_mode == 4)
+			CircleStart(period);
 		flagCircle = 0;
 	}
+	if(flagAnim1 == 1 ){
+		snakeReset();
+		flagAnim1 = 0;
+	}
+	if (flagTimer == 1){
+		timerReset();
+		flagTimer = 0;
+	}
+		
 	
 	if (ind_mode == 0){
 		ledOFF();
@@ -503,20 +527,10 @@ uint32_t* chkRxBuffUSART2(void)
 			timerLED(color,period);
 			start();
 		}
-		else{
+		else
 			timerReset();
-		}
-
 	}
-	else if (ind_mode == 3){
-		if (ind_timer == 1)
-			ret[0] = 1;	
-		else{
-			ret[0] = 0;
-			timerReset();
-		}
-	}
-	else{
+	else if (ind_mode == 4){
 		if (ind_anim == 0){
 			DotCircleReset();
 			blink(color,period);
@@ -530,18 +544,14 @@ uint32_t* chkRxBuffUSART2(void)
 			animation1Reset();
 			snake(period);
 		}
-		else if (ind_anim == 3){
-			snakeReset();
+		else if (ind_anim == 3)
 			animation1(color,period);
-		}
 		else if (ind_anim == 4){
 			animation1Reset();
 			CircleReset();
 			pwmBlue(period);
-			
 		}
 		else if (ind_anim == 5){
-			animation2Reset();
 			Circle(period);
 		}
 		else if (ind_anim == 6){
@@ -552,14 +562,23 @@ uint32_t* chkRxBuffUSART2(void)
 		else{
 			animation2Reset();
 			animation3(color,period);
-		}
+		} 
 	}
 
 	if (ind_mode == 3){
-		if (ind_timer == 1)
+		if (flagCounter == 1){
+			ledOFF();
+			start();
+			flagCounter=0;
+		}
+		if (ind_timer == 1){
 			ret[0] = 1;	
-		else
+		}
+		else{
 			ret[0] = 0;
+			ledOFF();
+			start();
+			}
 	}
 	else
 	{
@@ -568,11 +587,10 @@ uint32_t* chkRxBuffUSART2(void)
 	
 	ret[1]= color;
 	
-	
-		if (g_usart2_ridx >= (USART2_BUFFER_SIZE))
-		{
-			g_usart2_ridx = 0;
-		}
+	if (g_usart2_ridx >= (USART2_BUFFER_SIZE))
+	{
+		g_usart2_ridx = 0;
+	}
 	
 	return ret;
 }
