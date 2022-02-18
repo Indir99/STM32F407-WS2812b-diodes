@@ -47,6 +47,14 @@ uint32_t color_green[5]={0x320000,0x640000,0x960000,0xC80000,0xFF0000};
 uint32_t color_yellow[5]={0x323200,0x646400,0x969600,0xC8C800,0xFFC800};
 uint32_t arraytmp[DMA_ARRAY_SIZE]={};
 
+// ANIMATION 2
+uint8_t cnt_anim2=0;
+int8_t max=22;
+uint8_t flagAnim2=0;
+int indx2 = 528;
+
+// ANIMATION3
+int indAnim3=0;
 
 
 void ledOFF()
@@ -592,7 +600,6 @@ void blink(uint32_t color,uint16_t delay)
 }
 
 void DotCircle(uint32_t color,uint16_t delay){
-	//uint8_t cnt=0;
 	uint32_t colors[1]={color};
 	
 		if (cnt_dc > 19){ 
@@ -832,19 +839,110 @@ void pwmBlue(uint16_t delay){
 }
 
 void Circle(uint16_t period){
-	
-	for(int i=0;i<DMA_ARRAY_SIZE;i++)
+
+	for(int i=0;i<DMA_ARRAY_SIZE;i++){
 		arraytmp[i]=pwmArray[i];
+	}
 		
-	for(int i=456,j=0;i<480,j<24;i++,j++)
+	for(int i=456,j=0;i<480,j<24;i++,j++){
 		pwmArray[j]=arraytmp[i];
-		
-	for(int i=24,j=0; i<480,j<456; i++,j++)
+	}
+	for(int i=24,j=0; i<480,j<456; i++,j++){
 		pwmArray[i]=arraytmp[j];
+	}
 			
 	delay_ms(period);		
 	start();
 }	
+
+void animation2(uint32_t color,uint16_t delay){
+	
+	uint32_t colors[1]={color};
+	if (max < 0){
+		max=22;
+	}
+	
+	if (cnt_anim2 >= max){ 
+		cnt_anim2 = 0;
+		max--;
+		flagAnim2 = 1;
+	}
+	else{
+		flagAnim2 = 0;
+	}
+	int indx2 = 528;
+	int indx1 = 0;
+	
+	for (int i = 0; i < 23; i++){
+		for (int j = 23; j >= 0; j--){
+			if (i == cnt_anim2){
+				if (colors[0] & (1 << j))
+					pwmArray[indx1] = 71;
+				else
+					pwmArray[indx1] = 34;
+			}
+			else
+				pwmArray[indx1] = 34;
+					
+			indx1++;
+		}
+	}
+	
+	indx2=24*(max+1);
+	
+	for (int i =(max+1);i<23; i++){
+		for (int j = 23; j >= 0; j--){
+			if (colors[0] & (1 << j))
+				pwmArray[indx2++] = 71;
+			else
+				pwmArray[indx2++] = 34;
+		}
+	}	
+		
+	start();
+	cnt_anim2++;
+	delay_ms(delay);
+}
+
+void animation3(uint32_t color,uint16_t delay){
+	uint32_t colors[1]={color};
+	int indx=0;
+	if (indAnim3==0){
+		for(int i=0;i<23;i++){
+			indx=i*24;
+			for (int j = 23; j >= 0; j--){
+				if (i%2==0){
+					if (colors[0] & (1 << j))
+						pwmArray[indx++] = 71;
+					else
+						pwmArray[indx++] = 34;
+				}
+				else
+					pwmArray[indx++] = 34;
+			}	
+		}
+		indAnim3=1;
+	}
+	else{
+		for(int i=0;i<23;i++){
+			indx=i*24;
+			for (int j = 23; j >= 0; j--){
+				if (i%2!=0){
+					if (colors[0] & (1 << j))
+						pwmArray[indx++] = 71;
+					else
+						pwmArray[indx++] = 34;
+				}
+				else
+					pwmArray[indx++] = 34;
+			}	
+		}
+		indAnim3=0;
+	}
+			
+	delay_ms(delay);
+	start();
+}
 
 // RESET FUNCTIONS
 
@@ -855,9 +953,6 @@ void timerReset()
 	ledOFF();
 	start();
 }
-
-
-
 
 void DotCircleReset(){
 	cnt_dc= 0;
@@ -893,6 +988,20 @@ void CircleReset(){
 	indx_blue=120;
 	indx_green=240;
 	indx_yellow=360;
+	ledOFF();
+}
+
+void animation2Reset(){
+	cnt_anim2=0;
+	max=22;
+	flagAnim2=0;
+	indx2 = 528;
+	ledOFF();
+}
+
+void animation3Reset(){
+	indAnim3=0;
+	ledOFF();
 }
 
 // START FUNCTIONS

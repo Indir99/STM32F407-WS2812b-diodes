@@ -28,24 +28,22 @@ void Circle(uint16_t);
 void animation1(uint32_t,uint16_t);
 void snake(uint16_t);
 void pwmBlue(uint16_t);
+void animation2(uint32_t,uint16_t);
+void animation3(uint32_t,uint16_t);
 
 
 //RESET
 void DotCircleReset();
 void snakeReset();
 void animation1Reset();
+void animation2Reset();
+void animation3Reset();
 void CircleReset();
+
+
+
+
 void CircleStart(uint16_t);
-
-
-
-
-
-
-
-
-
-
 void pushButtonCounter(uint32_t, uint8_t);
 
 #endif

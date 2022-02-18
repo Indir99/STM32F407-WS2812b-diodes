@@ -50,8 +50,10 @@ int main()
 	GPIOA->MODER &= ~(0x00000001);
 	GPIOA->OSPEEDR |= 0xFFFFFFFF;
 	GPIOA->OTYPER |= 0x00000000;
+
 	while (1)
 	{
+		
 		serviceIRQA();
 		if (indicator[0] == 1){
 			pushButtonCounter(indicator[1], pushButtonState);
@@ -62,11 +64,13 @@ int main()
 			pushButtonState = 0;
 			pushButtonCoutingWay = 0;
 		}
-					
+				
 		#ifndef USART_ECHO
 			indicator = chkRxBuffUSART2();
 		#endif
+		 
 		 delay_ms(10);
+	 
 	}
 	return 0;
 }

@@ -15,7 +15,7 @@ volatile uint8_t usart3_state = 0;
 volatile uint8_t position = 1; 
 volatile char *led_color[]={"RED","GREEN","BLUE","YELLOW","PURPLE","CYAN"};
 volatile char *mode[]={"OFF","ON","TIMER","COUNTER","ANIMATIONS"};
-volatile char *animations[]={"BLINK","DotCircle","SNAKE","ANIM1","PWMBlue","CIRCLE"};
+volatile char *animations[]={"BLINK","DotCircle","SNAKE","ANIM1","PWMBlue","CIRCLE","ANIM2","ANIM3"};
 volatile char *timer[]={"OFF","ON"};
 volatile uint16_t period=100;
 
@@ -23,7 +23,6 @@ volatile uint8_t ind_color=0;
 volatile uint8_t ind_mode=0;
 volatile uint8_t ind_anim=0;
 volatile uint8_t ind_timer=0;
-
 
 volatile uint8_t flag_color[]={1,0};
 volatile uint8_t flag_mode[]={1,0};
@@ -34,12 +33,13 @@ volatile uint8_t flag_period[]={1,0};
 // ARRAY SIZE - 1
 volatile uint8_t numColor= 5;
 volatile uint8_t numMode=4;
-volatile uint8_t numAnim=5;
+volatile uint8_t numAnim=7;
 volatile uint8_t numTimer=1;
 
 
 volatile uint32_t ret[2] = {};
 volatile uint8_t flagCircle=0;
+
 
 // Super code:
 // Up -> 8
@@ -483,6 +483,8 @@ uint32_t* chkRxBuffUSART2(void)
 			printFunction(21,91,0,41,timer[ind_timer]);
 	}	
 	
+	
+	
 	if(flagCircle == 1 ){
 		CircleStart(period);
 		flagCircle = 0;
@@ -516,32 +518,43 @@ uint32_t* chkRxBuffUSART2(void)
 	}
 	else{
 		if (ind_anim == 0){
-			blink(color,period);
 			DotCircleReset();
+			blink(color,period);
 		}
 		else if (ind_anim == 1){
-			DotCircle(color,period);
 			snakeReset();
+			DotCircle(color,period);
 		}
 		else if (ind_anim == 2){
-			snake(period);
 			DotCircleReset();
 			animation1Reset();
+			snake(period);
 		}
 		else if (ind_anim == 3){
-			animation1(color,period);
 			snakeReset();
+			animation1(color,period);
 		}
 		else if (ind_anim == 4){
-			pwmBlue(period);
 			animation1Reset();
 			CircleReset();
+			pwmBlue(period);
+			
 		}
 		else if (ind_anim == 5){
+			animation2Reset();
 			Circle(period);
 		}
+		else if (ind_anim == 6){
+			CircleReset();
+			animation3Reset();
+			animation2(color,period);
+		}
+		else{
+			animation2Reset();
+			animation3(color,period);
+		}
 	}
-	
+
 	if (ind_mode == 3){
 		if (ind_timer == 1)
 			ret[0] = 1;	
