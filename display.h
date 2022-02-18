@@ -33,6 +33,10 @@ void pwmBlue(uint16_t);
 //RESET
 void DotCircleReset();
 void snakeReset();
+void animation1Reset();
+void CircleReset();
+void CircleStart(uint16_t);
+
 
 
 
