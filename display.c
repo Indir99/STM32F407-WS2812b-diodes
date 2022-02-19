@@ -56,6 +56,12 @@ int indx2 = 528;
 // ANIMATION3
 int indAnim3=0;
 
+// ANIMATION4
+uint8_t cntA4 = 0;
+
+// AUTHORS
+uint8_t name= 0;
+
 
 void ledOFF()
 {
@@ -942,6 +948,114 @@ void animation3(uint32_t color,uint16_t delay){
 	start();
 }
 
+void animation4(uint32_t color, uint16_t delay){
+	int indx=0;
+		
+	if (cntA4 == 5)
+		cntA4 = 0;
+	ledOFF();
+	
+	uint32_t colors[2]={0x00FFFF,color};
+	for(int i=0;i<23;i++){
+		indx = i*24;
+		if (cntA4 == 0){
+			for (int j = 23; j >= 0; j--){
+				if ((i>=0 && i<4) || (i>=17 && i<20)){
+					if (colors[0] & (1 << j))
+						pwmArray[indx++] = 71;
+					else
+						pwmArray[indx++] = 34;
+				}	
+			}
+		}
+		else if ( cntA4 == 1){
+			for (int j = 23; j >= 0; j--){
+				if (i==4 || i== 16 || i==20){
+					if (colors[1] & (1 << j))
+						pwmArray[indx++] = 71;
+					else
+						pwmArray[indx++] = 34;
+				}	
+			}
+		}
+		else if (cntA4 == 2){
+			for (int j = 23; j >= 0; j--){
+				if (i==5 || i== 15 || i==21){
+					if (colors[1] & (1 << j))
+						pwmArray[indx++] = 71;
+					else
+						pwmArray[indx++] = 34;
+				}	
+			}
+		}
+		else if (cntA4 == 3){
+			for (int j = 23; j >= 0; j--){
+				if (i==6 || i== 14 || i==22){
+					if (colors[1] & (1 << j))
+						pwmArray[indx++] = 71;
+					else
+						pwmArray[indx++] = 34;
+				}	
+			}
+		}
+		
+		else{
+			for (int j = 23; j >= 0; j--){
+				if (i>=7 && i<14){
+					if (colors[0] & (1 << j))
+						pwmArray[indx++] = 71;
+					else
+						pwmArray[indx++] = 34;
+				}	
+			}
+		}
+		
+		
+		
+	}
+		
+	cntA4++;
+	delay_ms(delay);
+	start();
+}
+
+void authors(uint16_t delay){
+	int indx = 0;
+	if (name == 2)
+		name = 0;
+		
+	for(int i=0;i<23;i++){
+		indx = i*24;
+		if (name == 0){
+			for (int j = 23; j >= 0; j--){
+				if ((i>=0 && i<4) || (i>=17 && i<20)){
+					if (0x00FF00 & (1 << j))
+						pwmArray[indx++] = 71;
+					else
+						pwmArray[indx++] = 34;
+				}	
+			}
+		}
+		else{
+			for (int j = 23; j >= 0; j--){
+				if ((i>=0 && i<=6) || (i>=14 && i<23)){
+					if (0x0000FF & (1 << j))
+						pwmArray[indx++] = 71;
+					else
+						pwmArray[indx++] = 34;
+				}	
+			}
+		}
+		
+	}
+	
+	name++;
+	delay_ms(delay);
+	start();	
+}
+
+
+
 // RESET FUNCTIONS
 
 void timerReset()
@@ -999,6 +1113,16 @@ void animation2Reset(){
 
 void animation3Reset(){
 	indAnim3=0;
+	ledOFF();
+}
+
+void animation4Reset(){
+	cntA4 = 0;
+	ledOFF();
+}
+
+void authorsReset(){
+	name = 0;
 	ledOFF();
 }
 

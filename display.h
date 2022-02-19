@@ -30,6 +30,7 @@ void snake(uint16_t);
 void pwmBlue(uint16_t);
 void animation2(uint32_t,uint16_t);
 void animation3(uint32_t,uint16_t);
+void animation4(uint32_t,uint16_t);
 
 
 //RESET
@@ -38,7 +39,9 @@ void snakeReset();
 void animation1Reset();
 void animation2Reset();
 void animation3Reset();
+void animation4Reset();
 void CircleReset();
+void authorsReset();
 
 
 

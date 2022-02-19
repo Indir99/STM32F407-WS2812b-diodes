@@ -15,7 +15,7 @@ volatile uint8_t usart3_state = 0;
 volatile uint8_t position = 1; 
 volatile char *led_color[]={"RED","GREEN","BLUE","YELLOW","PURPLE","CYAN"};
 volatile char *mode[]={"OFF","ON","TIMER","COUNTER","ANIMATIONS"};
-volatile char *animations[]={"BLINK","DotCircle","SNAKE","ANIM1","PWMBlue","CIRCLE","ANIM2","ANIM3"};
+volatile char *animations[]={"BLINK","DotCircle","SNAKE","ANIM1","PWMBlue","CIRCLE","ANIM2","ANIM3","ANIM4","AUTHORS"};
 volatile char *timer[]={"OFF","ON"};
 volatile uint16_t period=100;
 
@@ -33,7 +33,7 @@ volatile uint8_t flag_period[]={1,0};
 // ARRAY SIZE - 1
 volatile uint8_t numColor= 5;
 volatile uint8_t numMode=4;
-volatile uint8_t numAnim=7;
+volatile uint8_t numAnim=9;
 volatile uint8_t numTimer=1;
 
 
@@ -496,6 +496,7 @@ uint32_t* chkRxBuffUSART2(void)
 			printFunction(21,23,0,0,animations[ind_anim]);
 			printUSART2("\e[21;49f%d ms",period);
 			printFunction(21,91,0,41,timer[ind_timer]);
+			break;
 	}	
 	
 	if(flagCircle == 1 ){
@@ -551,19 +552,29 @@ uint32_t* chkRxBuffUSART2(void)
 			CircleReset();
 			pwmBlue(period);
 		}
-		else if (ind_anim == 5){
+		else if (ind_anim == 5)
 			Circle(period);
-		}
 		else if (ind_anim == 6){
 			CircleReset();
 			animation3Reset();
 			animation2(color,period);
 		}
-		else{
+		else if (ind_anim == 7){
 			animation2Reset();
+			animation4Reset();
 			animation3(color,period);
 		} 
+		else if (ind_anim == 8){
+			animation2Reset();
+			authorsReset();
+			animation4(color,period);
+		}
+		else{
+			animation4Reset();
+			authors(period);
+		}
 	}
+
 
 	if (ind_mode == 3){
 		if (flagCounter == 1){
