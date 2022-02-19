@@ -8,21 +8,21 @@ void (*number_buffer[10])(uint32_t) = {numberZero, numberOne, numberTwo, numberT
 
 uint16_t pwmArray[DMA_ARRAY_SIZE] = {};
 
-//VARIABLES
+// VARIABLES
 
 // TIMER
 uint8_t counter = 0;
 uint8_t timer_flag = 0;
 
 // DOTCircle
-uint8_t cnt_dc=0;
+uint8_t cnt_dc = 0;
 
 // SNAKE
 uint8_t led_cntS = 0;
-uint16_t indxS=0;
-uint16_t indx1S=24*1;
-uint16_t indx2S=24*2;
-uint16_t indx3S=24*3;
+uint16_t indxS = 0;
+uint16_t indx1S = 24 * 1;
+uint16_t indx2S = 24 * 2;
+uint16_t indx3S = 24 * 3;
 uint8_t flagS = 0;
 
 // ANIMATION1
@@ -31,37 +31,36 @@ uint8_t numLed = 0;
 uint8_t led_left = 4;
 uint8_t led_right = 15;
 uint8_t flag = 0;
-int indxFirst = 24*5;
-int indxLast =24*15;
-int indxR=24*6;
-int indxL=24*4;
+int indxFirst = 24 * 5;
+int indxLast = 24 * 15;
+int indxR = 24 * 6;
+int indxL = 24 * 4;
 
 // CIRCLE
 int indx_red = 0;
-int indx_blue=120;
-int indx_green=240;
-int indx_yellow=360;
-uint32_t color_red[5]={0x003200,0x006400,0x009600,0x00C800,0x00FF00};
-uint32_t color_blue[5]={0x000032,0x000064,0x000096,0x0000C8,0x0000FF};
-uint32_t color_green[5]={0x320000,0x640000,0x960000,0xC80000,0xFF0000};
-uint32_t color_yellow[5]={0x323200,0x646400,0x969600,0xC8C800,0xFFC800};
-uint32_t arraytmp[DMA_ARRAY_SIZE]={};
+int indx_blue = 120;
+int indx_green = 240;
+int indx_yellow = 360;
+uint32_t color_red[5] = {0x003200, 0x006400, 0x009600, 0x00C800, 0x00FF00};
+uint32_t color_blue[5] = {0x000032, 0x000064, 0x000096, 0x0000C8, 0x0000FF};
+uint32_t color_green[5] = {0x320000, 0x640000, 0x960000, 0xC80000, 0xFF0000};
+uint32_t color_yellow[5] = {0x323200, 0x646400, 0x969600, 0xC8C800, 0xFFC800};
+uint32_t arraytmp[DMA_ARRAY_SIZE] = {};
 
 // ANIMATION 2
-uint8_t cnt_anim2=0;
-int8_t max=22;
-uint8_t flagAnim2=0;
+uint8_t cnt_anim2 = 0;
+int8_t max = 22;
+uint8_t flagAnim2 = 0;
 int indx2 = 528;
 
 // ANIMATION3
-int indAnim3=0;
+int indAnim3 = 0;
 
 // ANIMATION4
 uint8_t cntA4 = 0;
 
 // AUTHORS
-uint8_t name= 0;
-
+uint8_t name = 0;
 
 void ledOFF()
 {
@@ -478,7 +477,9 @@ void start()
 	//	printUSART2("%d \n",DMA1_Stream6->NDTR);
 	// DMA1_Stream6->NDTR = DMA_ARRAY_SIZE;
 	DMA1_Stream6->CR |= DMA_SxCR_EN;
-	while (DMA1_Stream6->NDTR){}
+	while (DMA1_Stream6->NDTR)
+	{
+	}
 
 	// DMA DISABLE
 	TIM4->CR1 &= ~(0x0001);
@@ -498,16 +499,18 @@ void initDMA()
 	GPIOD->AFR[1] |= 0x22220000;
 
 	{
-		RCC->APB1ENR |= RCC_APB1ENR_TIM4EN; // enable TIM4 on APB1
-		TIM4->PSC = 0;						// set TIM4 counting prescaler
-											// 84MHz/84 = 1MHz -> count each 1us
-		/* TIM4->ARR = 0x03E8;											// period of the PWM 1ms */
-		TIM4->ARR = 105; // period of the PWM 1ms
 
-		TIM4->CCR1 = 100; // duty cycle for the PWM set to 0%
+		// wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+		//	Setup TIM4 for WS2812 diodes
+		// wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+
+		RCC->APB1ENR |= RCC_APB1ENR_TIM4EN; // enable TIM4 on APB1
+		TIM4->PSC = 0;						// set TIM4 counting prescaler 84MHz/1 = 84MHz
+		TIM4->ARR = 105;					// period of the PWM 1.25us
+
+		TIM4->CCR1 = 100;
 		TIM4->CCR2 = 0x0000;
 		TIM4->CCR3 = 0x0056;
-		// TIM4->CCR4 = 0x0056;
 		TIM4->CCR4 = 105;
 
 		TIM4->DIER |= TIM_DIER_UDE;
@@ -532,7 +535,7 @@ void initDMA()
 	}
 
 	/// wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
-	///  Setup DMA1 controller for ADC1 p179
+	///  Setup DMA1 controller for TIM4PWM
 	/// wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 	RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN; // enable DMA1 clock
 
@@ -543,32 +546,26 @@ void initDMA()
 	DMA1->LISR = 0x00000000;
 	DMA1->HISR = 0x00000000;
 
-	DMA1_Stream6->PAR = (uint32_t)&TIM4->CCR2; // peripheral port register address (ADC1)
+	DMA1_Stream6->PAR = (uint32_t)&TIM4->CCR2; // peripheral port register address (TIM2->CH2)
 	DMA1_Stream6->M0AR = (uint32_t)pwmArray;   // memory address of first buffer
-	// DMA1_Stream2->M1AR = (uint32_t)pwmArray;  						// memory address of first buffer
-	DMA1_Stream6->NDTR = DMA_ARRAY_SIZE; // number of samples to write
-
-	/* DMA1_Stream2->CR &= ~DMA_SxCR_CHSEL;								// select channel 0 for ADC1 */
-	// DMA1_Stream2->CR |= DMA_SxCR_CHSEL_2 | DMA_SxCR_CHSEL_0; 		// select channel 0 for ADC1
-	DMA1_Stream6->CR |= DMA_SxCR_CHSEL_1;
-	/* DMA1_Stream2->CR |= 0x0a000000;									// select channel 0 for ADC1 */
-	DMA1_Stream6->CR |= DMA_SxCR_PL;   // select stream priority to very high
-									   // select stream priority to very high
-									   // - DMA is flow controller
-									   // - Peripheral address pointer is fixed
-	DMA1_Stream6->CR |= DMA_SxCR_MINC; // Memory address pointer is incremented
-									   // in accordance with the memory data size
-	// DMA1_Stream6->CR |= DMA_SxCR_PBURST_0;
-	//  DMA1_Stream6->CR |= DMA_SxCR_CIRC; // Memory address pointer is incremented
-	//   DMA1_Stream2->CR |= DMA_SxCR_DBM;	 							// Double buffer mode
-	DMA1_Stream6->CR |= DMA_SxCR_PSIZE_0; // Peripheral data size:
-										  // - Half Word 16-bit
-	DMA1_Stream6->CR |= DMA_SxCR_MSIZE_0; // Memory data size:
-										  // - Half Word 16-bit
-	DMA1_Stream6->CR |= DMA_SxCR_DIR_0;	  // Data transfer direction:
+	DMA1_Stream6->NDTR = DMA_ARRAY_SIZE;	   // number of samples to write
+	DMA1_Stream6->CR |= DMA_SxCR_CHSEL_1;	   // select channel 2 for TIM4
+	DMA1_Stream6->CR |= DMA_SxCR_PL;		   // select stream priority to very high
+											   // select stream priority to very high
+											   // - DMA is flow controller
+											   // - Peripheral address pointer is fixed
+	DMA1_Stream6->CR |= DMA_SxCR_MINC;		   // Memory address pointer is incremented
+											   // in accordance with the memory data size
+	DMA1_Stream6->CR |= DMA_SxCR_PSIZE_0;	   // Peripheral data size:
+											   // - Half Word 16-bit
+	DMA1_Stream6->CR |= DMA_SxCR_MSIZE_0;	   // Memory data size:
+											   // - Half Word 16-bit
+	DMA1_Stream6->CR |= DMA_SxCR_DIR_0;		   // Data transfer direction:
 }
 
-void timerLED(uint32_t color,uint16_t delay)
+// Animations and functions for diodes
+
+void timerLED(uint32_t color, uint16_t delay)
 {
 	// uint8_t number = 0;
 	if (counter == 0)
@@ -594,7 +591,7 @@ void timerLED(uint32_t color,uint16_t delay)
 	delay_ms(delay);
 }
 
-void blink(uint32_t color,uint16_t delay)
+void blink(uint32_t color, uint16_t delay)
 {
 	numberEight(color);
 	delay_ms(delay);
@@ -602,80 +599,91 @@ void blink(uint32_t color,uint16_t delay)
 	ledOFF();
 	delay_ms(delay);
 	start();
-	
 }
 
-void DotCircle(uint32_t color,uint16_t delay){
-	uint32_t colors[1]={color};
-	
-		if (cnt_dc > 19){ 
-			cnt_dc = 0;
-			DotCircleReset();
-		}
-		int indx = 0;
+void DotCircle(uint32_t color, uint16_t delay)
+{
+	uint32_t colors[1] = {color};
 
-		for (int i = 0; i < 23; i++)
+	if (cnt_dc > 19)
+	{
+		cnt_dc = 0;
+		DotCircleReset();
+	}
+	int indx = 0;
+
+	for (int i = 0; i < 23; i++)
+	{
+		for (int j = 23; j >= 0; j--)
 		{
-			for (int j = 23; j >= 0; j--)
+			if (i == cnt_dc)
 			{
-				if (i == cnt_dc)
-				{
-					if (colors[i] & (1 << j))
-						pwmArray[indx] = 71;
-					else
-						pwmArray[indx] = 34;
-				}
+				if (colors[i] & (1 << j))
+					pwmArray[indx] = 71;
 				else
 					pwmArray[indx] = 34;
-					
-				indx++;
 			}
+			else
+				pwmArray[indx] = 34;
+
+			indx++;
 		}
-		
+	}
+
 	for (int i = 552; i < 602; i++)
 		pwmArray[i] = 34;
 
 	delay_ms(delay);
 	start();
-	cnt_dc++;	
+	cnt_dc++;
 }
 
-void animation1(uint32_t color,uint16_t delay){
-	uint32_t colors[1]={color};
-	if (numLed>10 && flag == 0){
-		indxLast =24*15;
-		indxL = 24*16;
-		indxR = 24*led_right;
-		flag = 1;	
+void animation1(uint32_t color, uint16_t delay)
+{
+	uint32_t colors[1] = {color};
+	if (numLed > 10 && flag == 0)
+	{
+		indxLast = 24 * 15;
+		indxL = 24 * 16;
+		indxR = 24 * led_right;
+		flag = 1;
 	}
-		
-	if (numLed <=0 && flag == 1){
+
+	if (numLed <= 0 && flag == 1)
+	{
 		numLed = 0;
 		led_left = 4;
 		led_right = 15;
-		indxFirst = 24*5;
-		indxLast =24*15;
-		indxR=24*6;
-		indxL=24*led_left;
-		flag = 0;	
+		indxFirst = 24 * 5;
+		indxLast = 24 * 15;
+		indxR = 24 * 6;
+		indxL = 24 * led_left;
+		flag = 0;
 	}
-		
-	if (flag == 0){
-		if (numLed == 0){
-			for (int j = 23; j >= 0; j--){
+
+	if (flag == 0)
+	{
+		if (numLed == 0)
+		{
+			for (int j = 23; j >= 0; j--)
+			{
 				if (colors[0] & (1 << j))
 					pwmArray[indxFirst++] = 71;
 				else
 					pwmArray[indxFirst++] = 34;
 			}
 		}
-		else if (numLed > 0 && numLed < 10){
-			for (int j = 23; j >= 0; j--){
-				if (colors[0] & (1 << j)){
+		else if (numLed > 0 && numLed < 10)
+		{
+			for (int j = 23; j >= 0; j--)
+			{
+				if (colors[0] & (1 << j))
+				{
 					pwmArray[indxR++] = 71;
 					pwmArray[indxL++] = 71;
 				}
-				else{
+				else
+				{
 					pwmArray[indxR++] = 34;
 					pwmArray[indxL++] = 34;
 				}
@@ -683,10 +691,12 @@ void animation1(uint32_t color,uint16_t delay){
 			if (led_left == 0)
 				led_left = 19;
 			else
-				led_left --;
+				led_left--;
 		}
-		else{
-			for (int j = 23; j >= 0; j--){
+		else
+		{
+			for (int j = 23; j >= 0; j--)
+			{
 				if (colors[0] & (1 << j))
 					pwmArray[indxLast++] = 71;
 				else
@@ -694,48 +704,57 @@ void animation1(uint32_t color,uint16_t delay){
 			}
 		}
 	}
-	
-	if (flag == 1) {
-		if (numLed == 11){	
-			for (int j = 23; j >= 0; j--){
-				pwmArray[indxLast++] = 33;	
+
+	if (flag == 1)
+	{
+		if (numLed == 11)
+		{
+			for (int j = 23; j >= 0; j--)
+			{
+				pwmArray[indxLast++] = 33;
 			}
 		}
-		else{
-			for (int j = 23; j >= 0; j--){
-				pwmArray[indxLast++] = 33;	
+		else
+		{
+			for (int j = 23; j >= 0; j--)
+			{
+				pwmArray[indxLast++] = 33;
 				pwmArray[indxR++] = 33;
 			}
 		}
-		
-		if (indxLast == (24*20))
-			indxLast=0;
-				
+
+		if (indxLast == (24 * 20))
+			indxLast = 0;
+
 		led_right--;
-				
 	}
-		
-	if (flag == 0){
-		indxL=24*led_left;
+
+	if (flag == 0)
+	{
+		indxL = 24 * led_left;
 		numLed++;
 	}
-	else{
+	else
+	{
 		numLed--;
-		indxR=24*led_right;
+		indxR = 24 * led_right;
 	}
-		
+
 	delay_ms(delay);
-	start();	
+	start();
 }
-	
-void snake(uint16_t delay){
-	uint32_t colors[3]={0x0F0000,0x000F00,0x00000F};
-	//ledOFF();
-	if (led_cntS == 25){
+
+void snake(uint16_t delay)
+{
+	uint32_t colors[3] = {0x0F0000, 0x000F00, 0x00000F};
+	// ledOFF();
+	if (led_cntS == 25)
+	{
 		snakeReset();
 	}
-						
-	if (led_cntS == 0){
+
+	if (led_cntS == 0)
+	{
 		for (int j = 23; j >= 0; j--)
 		{
 			if (colors[0] & (1 << j))
@@ -744,142 +763,165 @@ void snake(uint16_t delay){
 				pwmArray[indxS++] = 34;
 		}
 	}
-	else if (led_cntS == 1){
-		for (int j = 23; j >= 0; j--){
+	else if (led_cntS == 1)
+	{
+		for (int j = 23; j >= 0; j--)
+		{
 			if (colors[1] & (1 << j))
 				pwmArray[indxS++] = 71;
 			else
 				pwmArray[indxS++] = 34;
 		}
-			
-		for (int j = 23; j >= 0; j--){
-				if (colors[0] & (1 << j))
-					pwmArray[indxS++] = 71;
-				else
-					pwmArray[indxS++] = 34;
-			}	
-		}
-		else if (led_cntS == 2){
-			for (int j = 23; j >= 0; j--)
-			{
-				if (colors[2] & (1 << j))
-					pwmArray[indxS++] = 71;
-				else
-					pwmArray[indxS++] = 34;
-			}
-			
-		for (int j = 23; j >= 0; j--){
-			if (colors[1] & (1 << j))
-				pwmArray[indxS++] = 71;
-			else
-				pwmArray[indxS++] = 34;
-		}	
-			
-		for (int j = 23; j >= 0; j--){
+
+		for (int j = 23; j >= 0; j--)
+		{
 			if (colors[0] & (1 << j))
 				pwmArray[indxS++] = 71;
 			else
 				pwmArray[indxS++] = 34;
 		}
-	}	
-	else{
+	}
+	else if (led_cntS == 2)
+	{
+		for (int j = 23; j >= 0; j--)
+		{
+			if (colors[2] & (1 << j))
+				pwmArray[indxS++] = 71;
+			else
+				pwmArray[indxS++] = 34;
+		}
+
+		for (int j = 23; j >= 0; j--)
+		{
+			if (colors[1] & (1 << j))
+				pwmArray[indxS++] = 71;
+			else
+				pwmArray[indxS++] = 34;
+		}
+
+		for (int j = 23; j >= 0; j--)
+		{
+			if (colors[0] & (1 << j))
+				pwmArray[indxS++] = 71;
+			else
+				pwmArray[indxS++] = 34;
+		}
+	}
+	else
+	{
 		flagS = 1;
 	}
-		
-	if(flagS == 1){
-		ledOFF();	
-		for (int j = 23; j >= 0; j--){
+
+	if (flagS == 1)
+	{
+		ledOFF();
+		for (int j = 23; j >= 0; j--)
+		{
 			if (colors[2] & (1 << j))
 				pwmArray[indx1S++] = 71;
 			else
 				pwmArray[indx1S++] = 34;
 		}
-			
+
 		for (int j = 23; j >= 0; j--)
 		{
 			if (colors[1] & (1 << j))
 				pwmArray[indx2S++] = 71;
 			else
 				pwmArray[indx2S++] = 34;
-		}	
-			
+		}
+
 		for (int j = 23; j >= 0; j--)
 		{
 			if (colors[0] & (1 << j))
 				pwmArray[indx3S++] = 71;
 			else
 				pwmArray[indx3S++] = 34;
-		}	
+		}
 	}
-		
-	indxS=0;
+
+	indxS = 0;
 	led_cntS++;
 	delay_ms(delay);
 	start();
 }
 
-void pwmBlue(uint16_t delay){
-	uint32_t colors[1]={0x0000FF};
-	float values[11]={0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1};
-	uint32_t up[10]={};
-	uint32_t down[10]={};
-	ledOFF();	
-	for (int i=0,j=9; i<10,j>=0;i++,j--){
-		up[i]=colors[0]*values[i];
-		down[i]=colors[0]*values[j+1];
+void pwmBlue(uint16_t delay)
+{
+	uint32_t colors[1] = {0x0000FF};
+	float values[11] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1};
+	uint32_t up[10] = {};
+	uint32_t down[10] = {};
+	ledOFF();
+	for (int i = 0, j = 9; i < 10, j >= 0; i++, j--)
+	{
+		up[i] = colors[0] * values[i];
+		down[i] = colors[0] * values[j + 1];
 	}
-	for(int i=0;i<10;i++){
+	for (int i = 0; i < 10; i++)
+	{
 		numberEight(up[i]);
 		start();
 		delay_ms(delay);
 	}
-		
-	for(int i=0;i<10;i++){
+
+	for (int i = 0; i < 10; i++)
+	{
 		numberEight(down[i]);
 		start();
 		delay_ms(delay);
 	}
-		
 }
 
-void Circle(uint16_t period){
-	
-	for(int i=0;i<DMA_ARRAY_SIZE;i++){
-		arraytmp[i]=pwmArray[i];
-	}
-		
-	for(int i=456,j=0;i<480,j<24;i++,j++){
-		pwmArray[j]=arraytmp[i];
-	}
-	for(int i=24,j=0; i<480,j<456; i++,j++){
-		pwmArray[i]=arraytmp[j];
-	}
-		
-	delay_ms(period);		
-	start();
-}	
+void Circle(uint16_t period)
+{
 
-void animation2(uint32_t color,uint16_t delay){
-	
-	uint32_t colors[1]={color};
-	if (max < 0){
-		max=22;
+	for (int i = 0; i < DMA_ARRAY_SIZE; i++)
+	{
+		arraytmp[i] = pwmArray[i];
 	}
-	
-	if (cnt_anim2 >= max){ 
+
+	for (int i = 456, j = 0; i < 480, j < 24; i++, j++)
+	{
+		pwmArray[j] = arraytmp[i];
+	}
+	for (int i = 24, j = 0; i < 480, j < 456; i++, j++)
+	{
+		pwmArray[i] = arraytmp[j];
+	}
+
+	delay_ms(period);
+	start();
+}
+
+void animation2(uint32_t color, uint16_t delay)
+{
+
+	uint32_t colors[1] = {color};
+	if (max < 0)
+	{
+		max = 22;
+	}
+
+	if (cnt_anim2 >= max)
+	{
 		cnt_anim2 = 0;
 		max--;
 		flagAnim2 = 1;
 	}
-	else{
+	else
+	{
 		flagAnim2 = 0;
 	}
 	int indx2 = 528;
 	int indx1 = 0;
-	
-	for (int i = 0; i < 23; i++){
-		for (int j = 23; j >= 0; j--){
-			if (i == cnt_anim2){
+
+	for (int i = 0; i < 23; i++)
+	{
+		for (int j = 23; j >= 0; j--)
+		{
+			if (i == cnt_anim2)
+			{
 				if (colors[0] & (1 << j))
 					pwmArray[indx1] = 71;
 				else
@@ -887,35 +929,42 @@ void animation2(uint32_t color,uint16_t delay){
 			}
 			else
 				pwmArray[indx1] = 34;
-					
+
 			indx1++;
 		}
 	}
-	
-	indx2=24*(max+1);
-	
-	for (int i =(max+1);i<23; i++){
-		for (int j = 23; j >= 0; j--){
+
+	indx2 = 24 * (max + 1);
+
+	for (int i = (max + 1); i < 23; i++)
+	{
+		for (int j = 23; j >= 0; j--)
+		{
 			if (colors[0] & (1 << j))
 				pwmArray[indx2++] = 71;
 			else
 				pwmArray[indx2++] = 34;
 		}
-	}	
-		
+	}
+
 	start();
 	cnt_anim2++;
 	delay_ms(delay);
 }
 
-void animation3(uint32_t color,uint16_t delay){
-	uint32_t colors[1]={color};
-	int indx=0;
-	if (indAnim3==0){
-		for(int i=0;i<23;i++){
-			indx=i*24;
-			for (int j = 23; j >= 0; j--){
-				if (i%2==0){
+void animation3(uint32_t color, uint16_t delay)
+{
+	uint32_t colors[1] = {color};
+	int indx = 0;
+	if (indAnim3 == 0)
+	{
+		for (int i = 0; i < 23; i++)
+		{
+			indx = i * 24;
+			for (int j = 23; j >= 0; j--)
+			{
+				if (i % 2 == 0)
+				{
 					if (colors[0] & (1 << j))
 						pwmArray[indx++] = 71;
 					else
@@ -923,15 +972,19 @@ void animation3(uint32_t color,uint16_t delay){
 				}
 				else
 					pwmArray[indx++] = 34;
-			}	
+			}
 		}
-		indAnim3=1;
+		indAnim3 = 1;
 	}
-	else{
-		for(int i=0;i<23;i++){
-			indx=i*24;
-			for (int j = 23; j >= 0; j--){
-				if (i%2!=0){
+	else
+	{
+		for (int i = 0; i < 23; i++)
+		{
+			indx = i * 24;
+			for (int j = 23; j >= 0; j--)
+			{
+				if (i % 2 != 0)
+				{
 					if (colors[0] & (1 << j))
 						pwmArray[indx++] = 71;
 					else
@@ -939,122 +992,141 @@ void animation3(uint32_t color,uint16_t delay){
 				}
 				else
 					pwmArray[indx++] = 34;
-			}	
+			}
 		}
-		indAnim3=0;
+		indAnim3 = 0;
 	}
-			
+
 	delay_ms(delay);
 	start();
 }
 
-void animation4(uint32_t color, uint16_t delay){
-	int indx=0;
-		
+void animation4(uint32_t color, uint16_t delay)
+{
+	int indx = 0;
+
 	if (cntA4 == 5)
 		cntA4 = 0;
 	ledOFF();
-	
-	uint32_t colors[2]={0x00FFFF,color};
-	for(int i=0;i<23;i++){
-		indx = i*24;
-		if (cntA4 == 0){
-			for (int j = 23; j >= 0; j--){
-				if ((i>=0 && i<4) || (i>=17 && i<20)){
+
+	uint32_t colors[2] = {0x00FFFF, color};
+	for (int i = 0; i < 23; i++)
+	{
+		indx = i * 24;
+		if (cntA4 == 0)
+		{
+			for (int j = 23; j >= 0; j--)
+			{
+				if ((i >= 0 && i < 4) || (i >= 17 && i < 20))
+				{
 					if (colors[0] & (1 << j))
 						pwmArray[indx++] = 71;
 					else
 						pwmArray[indx++] = 34;
-				}	
+				}
 			}
 		}
-		else if ( cntA4 == 1){
-			for (int j = 23; j >= 0; j--){
-				if (i==4 || i== 16 || i==20){
+		else if (cntA4 == 1)
+		{
+			for (int j = 23; j >= 0; j--)
+			{
+				if (i == 4 || i == 16 || i == 20)
+				{
 					if (colors[1] & (1 << j))
 						pwmArray[indx++] = 71;
 					else
 						pwmArray[indx++] = 34;
-				}	
+				}
 			}
 		}
-		else if (cntA4 == 2){
-			for (int j = 23; j >= 0; j--){
-				if (i==5 || i== 15 || i==21){
+		else if (cntA4 == 2)
+		{
+			for (int j = 23; j >= 0; j--)
+			{
+				if (i == 5 || i == 15 || i == 21)
+				{
 					if (colors[1] & (1 << j))
 						pwmArray[indx++] = 71;
 					else
 						pwmArray[indx++] = 34;
-				}	
+				}
 			}
 		}
-		else if (cntA4 == 3){
-			for (int j = 23; j >= 0; j--){
-				if (i==6 || i== 14 || i==22){
+		else if (cntA4 == 3)
+		{
+			for (int j = 23; j >= 0; j--)
+			{
+				if (i == 6 || i == 14 || i == 22)
+				{
 					if (colors[1] & (1 << j))
 						pwmArray[indx++] = 71;
 					else
 						pwmArray[indx++] = 34;
-				}	
+				}
 			}
 		}
-		
-		else{
-			for (int j = 23; j >= 0; j--){
-				if (i>=7 && i<14){
+
+		else
+		{
+			for (int j = 23; j >= 0; j--)
+			{
+				if (i >= 7 && i < 14)
+				{
 					if (colors[0] & (1 << j))
 						pwmArray[indx++] = 71;
 					else
 						pwmArray[indx++] = 34;
-				}	
+				}
 			}
 		}
-		
-		
-		
 	}
-		
+
 	cntA4++;
 	delay_ms(delay);
 	start();
 }
 
-void authors(uint16_t delay){
+void authors(uint16_t delay)
+{
 	int indx = 0;
 	if (name == 2)
 		name = 0;
-		
-	for(int i=0;i<23;i++){
-		indx = i*24;
-		if (name == 0){
-			for (int j = 23; j >= 0; j--){
-				if ((i>=0 && i<4) || (i>=17 && i<20)){
+
+	for (int i = 0; i < 23; i++)
+	{
+		indx = i * 24;
+		if (name == 0)
+		{
+			for (int j = 23; j >= 0; j--)
+			{
+				if ((i >= 0 && i < 4) || (i >= 17 && i < 20))
+				{
 					if (0x00FF00 & (1 << j))
 						pwmArray[indx++] = 71;
 					else
 						pwmArray[indx++] = 34;
-				}	
+				}
 			}
 		}
-		else{
-			for (int j = 23; j >= 0; j--){
-				if ((i>=0 && i<=6) || (i>=14 && i<23)){
+		else
+		{
+			for (int j = 23; j >= 0; j--)
+			{
+				if ((i >= 0 && i <= 6) || (i >= 14 && i < 23))
+				{
 					if (0x0000FF & (1 << j))
 						pwmArray[indx++] = 71;
 					else
 						pwmArray[indx++] = 34;
-				}	
+				}
 			}
 		}
-		
 	}
-	
+
 	name++;
 	delay_ms(delay);
-	start();	
+	start();
 }
-
-
 
 // RESET FUNCTIONS
 
@@ -1066,97 +1138,103 @@ void timerReset()
 	start();
 }
 
-void DotCircleReset(){
-	cnt_dc= 0;
+void DotCircleReset()
+{
+	cnt_dc = 0;
 	ledOFF();
 }
 
-void snakeReset(){
+void snakeReset()
+{
 	led_cntS = 0;
-	indxS=0;
-	indx1S=24*1;
-	indx2S=24*2;
-	indx3S=24*3;
+	indxS = 0;
+	indx1S = 24 * 1;
+	indx2S = 24 * 2;
+	indx3S = 24 * 3;
 	flagS = 0;
 	ledOFF();
 }
 
-void animation1Reset(){
-	
+void animation1Reset()
+{
+
 	cnt_anim1 = 0;
 	numLed = 0;
 	led_left = 4;
 	led_right = 15;
 	flag = 0;
-	indxFirst = 24*5;
-	indxLast =24*15;
-	indxR=24*6;
-	indxL=24*led_left;
+	indxFirst = 24 * 5;
+	indxLast = 24 * 15;
+	indxR = 24 * 6;
+	indxL = 24 * led_left;
 	ledOFF();
 }
 
-void CircleReset(){
+void CircleReset()
+{
 	indx_red = 0;
-	indx_blue=120;
-	indx_green=240;
-	indx_yellow=360;
+	indx_blue = 120;
+	indx_green = 240;
+	indx_yellow = 360;
 	ledOFF();
 }
 
-void animation2Reset(){
-	cnt_anim2=0;
-	max=22;
-	flagAnim2=0;
+void animation2Reset()
+{
+	cnt_anim2 = 0;
+	max = 22;
+	flagAnim2 = 0;
 	indx2 = 528;
 	ledOFF();
 }
 
-void animation3Reset(){
-	indAnim3=0;
+void animation3Reset()
+{
+	indAnim3 = 0;
 	ledOFF();
 }
 
-void animation4Reset(){
+void animation4Reset()
+{
 	cntA4 = 0;
 	ledOFF();
 }
 
-void authorsReset(){
+void authorsReset()
+{
 	name = 0;
 	ledOFF();
 }
 
 // START FUNCTIONS
 
-void CircleStart(uint16_t period){
-	for (int i=0; i<5; i++){
-		for (int j = 23; j >= 0; j--){
+void CircleStart(uint16_t period)
+{
+	for (int i = 0; i < 5; i++)
+	{
+		for (int j = 23; j >= 0; j--)
+		{
 			if (color_red[i] & (1 << j))
 				pwmArray[indx_red++] = 71;
 			else
 				pwmArray[indx_red++] = 34;
-				
+
 			if (color_blue[i] & (1 << j))
 				pwmArray[indx_blue++] = 71;
 			else
 				pwmArray[indx_blue++] = 34;
-				
+
 			if (color_green[i] & (1 << j))
 				pwmArray[indx_green++] = 71;
 			else
-				pwmArray[indx_green++] = 34;	
-			
+				pwmArray[indx_green++] = 34;
+
 			if (color_yellow[i] & (1 << j))
 				pwmArray[indx_yellow++] = 71;
 			else
-				pwmArray[indx_yellow++] = 34;	
-		}	
+				pwmArray[indx_yellow++] = 34;
+		}
 	}
 	start();
-	delay_ms(period);		
+	delay_ms(period);
 }
-
-
-
-
-

@@ -5,20 +5,30 @@
 #include "gui.h"
 #include "display.h"
 
+// Board PD13 -> Disp board pin IN
+// Board PD15 -> Disp board pin EN
+// Board 3V -> Disp board pin 3V3
+// Board GND -> Disp board pin GND
+
+// Board PA2 -> USB Dognle pin RXD
+// Board PA3 -> USB Dongle pin TXD
+
+// Button interrupt handl
 #define IRQ_IDLE 0
 #define IRQ_DETECTED 1
 #define IRQ_WAIT4LOW 2
 #define IRQ_DEBOUNCE 3
 #define IRQ_CNT
-
 volatile uint32_t g_irq_cnt = 0;
 volatile uint8_t g_gpioa_irq_state = (IRQ_IDLE);
 volatile uint32_t g_irq_timer = 0;
 volatile uint8_t pbstate = 0;
 volatile uint8_t pushButtonState = 0;
 volatile uint8_t pushButtonCoutingWay = 0;
-volatile uint32_t* indicator = 0;
+volatile uint32_t *indicator = 0;
+// end Button interrupt handl
 
+// Function for Button handling
 void serviceIRQA(void);
 
 int main()
@@ -29,8 +39,8 @@ int main()
 	enIrqUSART2();
 	initSYSTIMER();
 	// gui printing
-	 writeGUI();
-	
+	writeGUI();
+
 	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;		 // enable clock on SYSCFG register
 	SYSCFG->EXTICR[0] = SYSCFG_EXTICR1_EXTI0_PA; // select PA 0 as interrupt source p259
 	EXTI->IMR = EXTI_IMR_MR0;					 // enable interrupt on EXTI_Line0
@@ -40,6 +50,7 @@ int main()
 
 	NVIC_EnableIRQ(EXTI0_IRQn);
 
+	// Button config -> on PA0 (button on STM32F407G-DISC board)
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
 	GPIOA->MODER &= ~(0x00000001);
 	GPIOA->OSPEEDR |= 0xFFFFFFFF;
@@ -47,9 +58,10 @@ int main()
 
 	while (1)
 	{
-		
+
 		serviceIRQA();
-		if (indicator[0] == 1){
+		if (indicator[0] == 1)
+		{
 			pushButtonCounter(indicator[1], pushButtonState);
 		}
 		else
@@ -58,13 +70,12 @@ int main()
 			pushButtonState = 0;
 			pushButtonCoutingWay = 0;
 		}
-				
-		#ifndef USART_ECHO
-			indicator = chkRxBuffUSART2();
-		#endif
-		 
-		 delay_ms(50);
-	 
+
+#ifndef USART_ECHO
+		indicator = chkRxBuffUSART2();
+#endif
+
+		delay_ms(50);
 	}
 	return 0;
 }
@@ -75,10 +86,9 @@ void EXTI0_IRQHandler(void)
 
 	if ((EXTI->PR & EXTI_PR_PR0) == EXTI_PR_PR0) // EXTI_Line0 interrupt pending?
 	{
-		
+
 		if (g_gpioa_irq_state == (IRQ_IDLE))
 		{
-			// GPIOD->ODR ^= 0x5000; // Toggle the pin
 			g_gpioa_irq_state = (IRQ_DETECTED);
 		}
 		EXTI->PR = EXTI_PR_PR0; // clear EXTI_Line0 interrupt flag

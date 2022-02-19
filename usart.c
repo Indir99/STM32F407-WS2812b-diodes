@@ -1,48 +1,47 @@
 #include "usart.h"
+
 volatile uint8_t g_usart2_buffer[USART2_BUFFER_SIZE];
 volatile uint16_t g_usart2_widx = 0;
 volatile uint16_t g_usart2_ridx = 0;
 volatile uint8_t state = 0;
 volatile uint8_t arrow = 0;
-volatile uint32_t color=0xFFFFFF;
+volatile uint32_t color = 0xFFFFFF;
 
 volatile uint8_t g_usart3_buffer[USART3_BUFFER_SIZE];
 volatile uint16_t g_usart3_widx = 0;
 volatile uint16_t g_usart3_ridx = 0;
 volatile uint8_t usart3_state = 0;
 
-// ARROWS 
-volatile uint8_t position = 1; 
-volatile char *led_color[]={"RED","GREEN","BLUE","YELLOW","PURPLE","CYAN"};
-volatile char *mode[]={"OFF","ON","TIMER","COUNTER","ANIMATIONS"};
-volatile char *animations[]={"BLINK","DotCircle","SNAKE","ANIM1","PWMBlue","CIRCLE","ANIM2","ANIM3","ANIM4","AUTHORS"};
-volatile char *timer[]={"OFF","ON"};
-volatile uint16_t period=100;
+// ARROWS
+volatile uint8_t position = 1;
+volatile char *led_color[] = {"RED", "GREEN", "BLUE", "YELLOW", "PURPLE", "CYAN"};
+volatile char *mode[] = {"OFF", "ON", "TIMER", "COUNTER", "ANIMATIONS"};
+volatile char *animations[] = {"BLINK", "DotCircle", "SNAKE", "ANIM1", "PWMBlue", "CIRCLE", "ANIM2", "ANIM3", "ANIM4", "AUTHORS"};
+volatile char *timer[] = {"OFF", "ON"};
+volatile uint16_t period = 100;
 
-volatile uint8_t ind_color=0;
-volatile uint8_t ind_mode=0;
-volatile uint8_t ind_anim=0;
-volatile uint8_t ind_timer=0;
+volatile uint8_t ind_color = 0;
+volatile uint8_t ind_mode = 0;
+volatile uint8_t ind_anim = 0;
+volatile uint8_t ind_timer = 0;
 
-volatile uint8_t flag_color[]={1,0};
-volatile uint8_t flag_mode[]={1,0};
-volatile uint8_t flag_anim[]={1,0};
-volatile uint8_t flag_timer[]={1,0};
-volatile uint8_t flag_period[]={1,0};
+volatile uint8_t flag_color[] = {1, 0};
+volatile uint8_t flag_mode[] = {1, 0};
+volatile uint8_t flag_anim[] = {1, 0};
+volatile uint8_t flag_timer[] = {1, 0};
+volatile uint8_t flag_period[] = {1, 0};
 
 // ARRAY SIZE - 1
-volatile uint8_t numColor= 5;
-volatile uint8_t numMode=4;
-volatile uint8_t numAnim=9;
-volatile uint8_t numTimer=1;
-
+volatile uint8_t numColor = 5;
+volatile uint8_t numMode = 4;
+volatile uint8_t numAnim = 9;
+volatile uint8_t numTimer = 1;
 
 volatile uint32_t ret[2] = {};
-volatile uint8_t flagCircle=0;
-volatile uint8_t flagAnim1=0;
-volatile uint8_t flagCounter=0;
-volatile uint8_t flagTimer=0;
-
+volatile uint8_t flagCircle = 0;
+volatile uint8_t flagAnim1 = 0;
+volatile uint8_t flagCounter = 0;
+volatile uint8_t flagTimer = 0;
 
 // Super code:
 // Up -> 8
@@ -288,11 +287,11 @@ void sprintUSART2(uint8_t *str)
 void USART2_IRQHandler(void)
 {
 	uint8_t data;
-	
-	if(USART2->SR&(USART_SR_RXNE))
+
+	if (USART2->SR & (USART_SR_RXNE))
 	{
 		data = USART2->DR;
-		//USART3->SR &= ~(USART_SR_RXNE);
+		// USART3->SR &= ~(USART_SR_RXNE);
 		USART2->DR = data;
 	}
 }
@@ -300,14 +299,14 @@ void USART2_IRQHandler(void)
 
 void USART2_IRQHandler(void)
 {
-	
-	uint8_t data ;
-	if(USART2->SR&(USART_SR_RXNE))
-	{	
+
+	uint8_t data;
+	if (USART2->SR & (USART_SR_RXNE))
+	{
 		g_usart2_buffer[g_usart2_widx] = USART2->DR;
-		g_usart2_widx++;	
+		g_usart2_widx++;
 	}
-	if(g_usart2_widx >= (USART2_BUFFER_SIZE))
+	if (g_usart2_widx >= (USART2_BUFFER_SIZE))
 	{
 		g_usart2_widx = 0;
 	}
@@ -315,298 +314,333 @@ void USART2_IRQHandler(void)
 
 #endif
 
-uint32_t* chkRxBuffUSART2(void)
+uint32_t *chkRxBuffUSART2(void)
 {
 	if (g_usart2_ridx != g_usart2_widx)
 	{
-		if (g_usart2_buffer[g_usart2_ridx++] == 0x1B){
+		if (g_usart2_buffer[g_usart2_ridx++] == 0x1B)
+		{
 			if (g_usart2_buffer[g_usart2_ridx++] == '[')
 			{
-				if (g_usart2_buffer[g_usart2_ridx] == 'A'){
-					// COLOR CHANGE UP 
-						if (position == 1 && flag_color[0] == 1){
-							++ind_color;
-							flag_color[1] = 1;
-							if (ind_color == numColor)
-								flag_color[0] = 0;						
-						}
+				if (g_usart2_buffer[g_usart2_ridx] == 'A')
+				{
+					// COLOR CHANGE UP
+					if (position == 1 && flag_color[0] == 1)
+					{
+						++ind_color;
+						flag_color[1] = 1;
+						if (ind_color == numColor)
+							flag_color[0] = 0;
+					}
 					// MODE CHANGE UP
-						if(position == 2 && flag_mode[0] == 1){
-							++ind_mode;
-							flag_mode[1] = 1;
-							if (ind_mode == 3)
-								flagCounter =1;
-							if (ind_mode == 1 || ind_mode == 3)
-								flagTimer = 1;
-							if(ind_mode == numMode)
-								flag_mode[0] = 0;
-						}					
+					if (position == 2 && flag_mode[0] == 1)
+					{
+						++ind_mode;
+						flag_mode[1] = 1;
+						if (ind_mode == 3)
+							flagCounter = 1;
+						if (ind_mode == 1 || ind_mode == 3)
+							flagTimer = 1;
+						if (ind_mode == numMode)
+							flag_mode[0] = 0;
+					}
 					// ANIMATION CHANGE UP
-					    if(position == 3 && flag_anim[0] == 1){
-							++ind_anim;
-							if (ind_anim == 5)
-								flagCircle = 1;
-							if (ind_anim == 3)
-								flagAnim1 = 1;
-							flag_anim[1] = 1;
-							if(ind_anim == numAnim)
-								flag_anim[0] = 0;
-						}	
+					if (position == 3 && flag_anim[0] == 1)
+					{
+						++ind_anim;
+						if (ind_anim == 5)
+							flagCircle = 1;
+						if (ind_anim == 3)
+							flagAnim1 = 1;
+						flag_anim[1] = 1;
+						if (ind_anim == numAnim)
+							flag_anim[0] = 0;
+					}
 					// PERIOD CHANGE UP
-						if(position == 4 && flag_period[0] == 1){
-							period+=100;
-							flag_period[1] = 1;
-							if(period == 2000)
-								flag_period[0] = 0;
-						}
+					if (position == 4 && flag_period[0] == 1)
+					{
+						period += 100;
+						flag_period[1] = 1;
+						if (period == 2000)
+							flag_period[0] = 0;
+					}
 					// TIMER/COUNTER CHANGE UP
-						if(position == 5 && flag_timer[0] == 1){
-							++ind_timer;
-							flag_timer[1] = 1;
-							if(ind_timer == numTimer)
-								flag_timer[0] = 0;
-						}				
+					if (position == 5 && flag_timer[0] == 1)
+					{
+						++ind_timer;
+						flag_timer[1] = 1;
+						if (ind_timer == numTimer)
+							flag_timer[0] = 0;
 					}
-				else if(g_usart2_buffer[g_usart2_ridx] == 'B'){
-					    // COLOR CHANGE DOWN
-						if (position == 1 && flag_color[1] == 1){
-							--ind_color;
-							flag_color[0] = 1;
-							if (ind_color == 0)
-								flag_color[1] = 0;		
-						}
-						//MODE CHANGE DOWN
-						if (position == 2 && flag_mode[1] == 1){
-							--ind_mode;
-							flag_mode[0] = 1;
-							if (ind_mode == 3)
-								flagCounter =1;
-							if (ind_mode == 1 || ind_mode == 3)
-								flagTimer = 1;
-							if (ind_mode == 0)
-								flag_mode[1] = 0;
-						}						
-						// ANIMATION CHANGE DOWN
-						if (position == 3 && flag_anim[1] == 1){
-							--ind_anim;
-							if (ind_anim == 5)
-								flagCircle=1;
-							else if (ind_anim == 3)
-								flagAnim1 =1;
-							flag_anim[0] = 1;
-							if (ind_anim == 0)
-								flag_anim[1] = 0;
-						}
-						// PERIOD CHANGE DOWN
-						if (position == 4 && flag_period[1] == 1){
-							period-=100;
-							flag_period[0] = 1;
-							if (period == 100)
-								flag_period[1] = 0;
-						}
-						
-						// TIMER/COUNTER CHANGE DOWN
-						if (position == 5 && flag_timer[1] == 1){
-							--ind_timer;
-							flag_timer[0] = 1;
-							if (ind_timer == 0)
-								flag_timer[1] = 0;
-						}							
+				}
+				else if (g_usart2_buffer[g_usart2_ridx] == 'B')
+				{
+					// COLOR CHANGE DOWN
+					if (position == 1 && flag_color[1] == 1)
+					{
+						--ind_color;
+						flag_color[0] = 1;
+						if (ind_color == 0)
+							flag_color[1] = 0;
 					}
-				else if (g_usart2_buffer[g_usart2_ridx] == 'C'){
-						if (position != 5)
-							++position;
+					// MODE CHANGE DOWN
+					if (position == 2 && flag_mode[1] == 1)
+					{
+						--ind_mode;
+						flag_mode[0] = 1;
+						if (ind_mode == 3)
+							flagCounter = 1;
+						if (ind_mode == 1 || ind_mode == 3)
+							flagTimer = 1;
+						if (ind_mode == 0)
+							flag_mode[1] = 0;
 					}
-				else if (g_usart2_buffer[g_usart2_ridx] == 'D'){
-						if ( position != 1)
-							--position;			
-					}	
-				g_usart2_ridx++; 
+					// ANIMATION CHANGE DOWN
+					if (position == 3 && flag_anim[1] == 1)
+					{
+						--ind_anim;
+						if (ind_anim == 5)
+							flagCircle = 1;
+						else if (ind_anim == 3)
+							flagAnim1 = 1;
+						flag_anim[0] = 1;
+						if (ind_anim == 0)
+							flag_anim[1] = 0;
+					}
+					// PERIOD CHANGE DOWN
+					if (position == 4 && flag_period[1] == 1)
+					{
+						period -= 100;
+						flag_period[0] = 1;
+						if (period == 100)
+							flag_period[1] = 0;
+					}
+
+					// TIMER/COUNTER CHANGE DOWN
+					if (position == 5 && flag_timer[1] == 1)
+					{
+						--ind_timer;
+						flag_timer[0] = 1;
+						if (ind_timer == 0)
+							flag_timer[1] = 0;
+					}
+				}
+				else if (g_usart2_buffer[g_usart2_ridx] == 'C')
+				{
+					if (position != 5)
+						++position;
+				}
+				else if (g_usart2_buffer[g_usart2_ridx] == 'D')
+				{
+					if (position != 1)
+						--position;
+				}
+				g_usart2_ridx++;
 			}
 		}
 	}
-			
-		
-	if (ind_color == 0){
+
+	if (ind_color == 0)
+	{
 		writeFrameTwo(31);
 		color = 0x00FF00;
 	}
-	else if (ind_color == 1){
+	else if (ind_color == 1)
+	{
 		writeFrameTwo(32);
 		color = 0xFF0000;
 	}
-	else if(ind_color == 2){
+	else if (ind_color == 2)
+	{
 		writeFrameTwo(34);
 		color = 0x0000FF;
 	}
-	else if(ind_color == 3){
+	else if (ind_color == 3)
+	{
 		writeFrameTwo(33);
 		color = 0xFFFF00;
 	}
-	else if(ind_color == 4){
+	else if (ind_color == 4)
+	{
 		writeFrameTwo(35);
 		color = 0x00FFFF;
 	}
-	else{
+	else
+	{
 		writeFrameTwo(36);
 		color = 0xFF00FF;
 	}
-	
-	
-	printFunction(10,62,0,0,"          ");
-	printFunction(15,60,0,0,"          ");
-	printFunction(21,23,0,0,"          ");
-	printFunction(21,91,0,0,"          ");
-	printFunction(21,49,0,0,"          ");
-	
-	
-	switch(position){
-		case 1:		
-			printFunction(10,62,0,41,led_color[ind_color]);
-			printFunction(15,60,0,0,mode[ind_mode]);
-			printFunction(21,23,0,0,animations[ind_anim]);
-			printUSART2("\e[21;49f%d ms",period);
-			printFunction(21,91,0,0,timer[ind_timer]);		
-			break;
-			
-		case 2:
-			printFunction(10,62,0,0,led_color[ind_color]);
-			printFunction(15,60,0,41,mode[ind_mode]);
-			printFunction(21,23,0,0,animations[ind_anim]);
-			printUSART2("\e[21;49f%d ms",period);
-			printFunction(21,91,0,0,timer[ind_timer]);
-			break;
-		case 3:
-			printFunction(10,62,0,0,led_color[ind_color]);
-			printFunction(15,60,0,0,mode[ind_mode]);
-			printFunction(21,23,0,41,animations[ind_anim]);
-			printUSART2("\e[21;49f%d ms",period);
-			printFunction(21,91,0,0,timer[ind_timer]);
-			break;
-		case 4:	
-			printFunction(10,62,0,0,led_color[ind_color]);
-			printFunction(15,60,0,0,mode[ind_mode]);
-			printFunction(21,23,0,0,animations[ind_anim]);
-			printUSART2("\e[21;49f\e[41m%d ms\e[0m",period);
-			printFunction(21,91,0,0,timer[ind_timer]);
-			break;
-		case 5:
-			printFunction(10,62,0,0,led_color[ind_color]);
-			printFunction(15,60,0,0,mode[ind_mode]);
-			printFunction(21,23,0,0,animations[ind_anim]);
-			printUSART2("\e[21;49f%d ms",period);
-			printFunction(21,91,0,41,timer[ind_timer]);
-			break;
-	}	
-	
-	if(flagCircle == 1 ){
+
+	printFunction(10, 62, 0, 0, "          ");
+	printFunction(15, 60, 0, 0, "          ");
+	printFunction(21, 23, 0, 0, "          ");
+	printFunction(21, 91, 0, 0, "          ");
+	printFunction(21, 49, 0, 0, "          ");
+
+	switch (position)
+	{
+	case 1:
+		printFunction(10, 62, 0, 41, led_color[ind_color]);
+		printFunction(15, 60, 0, 0, mode[ind_mode]);
+		printFunction(21, 23, 0, 0, animations[ind_anim]);
+		printUSART2("\e[21;49f%d ms", period);
+		printFunction(21, 91, 0, 0, timer[ind_timer]);
+		break;
+
+	case 2:
+		printFunction(10, 62, 0, 0, led_color[ind_color]);
+		printFunction(15, 60, 0, 41, mode[ind_mode]);
+		printFunction(21, 23, 0, 0, animations[ind_anim]);
+		printUSART2("\e[21;49f%d ms", period);
+		printFunction(21, 91, 0, 0, timer[ind_timer]);
+		break;
+	case 3:
+		printFunction(10, 62, 0, 0, led_color[ind_color]);
+		printFunction(15, 60, 0, 0, mode[ind_mode]);
+		printFunction(21, 23, 0, 41, animations[ind_anim]);
+		printUSART2("\e[21;49f%d ms", period);
+		printFunction(21, 91, 0, 0, timer[ind_timer]);
+		break;
+	case 4:
+		printFunction(10, 62, 0, 0, led_color[ind_color]);
+		printFunction(15, 60, 0, 0, mode[ind_mode]);
+		printFunction(21, 23, 0, 0, animations[ind_anim]);
+		printUSART2("\e[21;49f\e[41m%d ms\e[0m", period);
+		printFunction(21, 91, 0, 0, timer[ind_timer]);
+		break;
+	case 5:
+		printFunction(10, 62, 0, 0, led_color[ind_color]);
+		printFunction(15, 60, 0, 0, mode[ind_mode]);
+		printFunction(21, 23, 0, 0, animations[ind_anim]);
+		printUSART2("\e[21;49f%d ms", period);
+		printFunction(21, 91, 0, 41, timer[ind_timer]);
+		break;
+	}
+
+	if (flagCircle == 1)
+	{
 		animation2Reset();
 		if (ind_mode == 4)
 			CircleStart(period);
 		flagCircle = 0;
 	}
-	if(flagAnim1 == 1 ){
+	if (flagAnim1 == 1)
+	{
 		snakeReset();
 		flagAnim1 = 0;
 	}
-	if (flagTimer == 1){
+	if (flagTimer == 1)
+	{
 		timerReset();
 		flagTimer = 0;
 	}
-		
-	
-	if (ind_mode == 0){
+
+	if (ind_mode == 0)
+	{
 		ledOFF();
 		start();
 	}
-	else if (ind_mode == 1){
+	else if (ind_mode == 1)
+	{
 		numberEight(color);
 		start();
 	}
-	else if (ind_mode == 2){
-		if (ind_timer == 1){
-			timerLED(color,period);
+	else if (ind_mode == 2)
+	{
+		if (ind_timer == 1)
+		{
+			timerLED(color, period);
 			start();
 		}
 		else
 			timerReset();
 	}
-	else if (ind_mode == 4){
-		if (ind_anim == 0){
+	else if (ind_mode == 4)
+	{
+		if (ind_anim == 0)
+		{
 			DotCircleReset();
-			blink(color,period);
+			blink(color, period);
 		}
-		else if (ind_anim == 1){
+		else if (ind_anim == 1)
+		{
 			snakeReset();
-			DotCircle(color,period);
+			DotCircle(color, period);
 		}
-		else if (ind_anim == 2){
+		else if (ind_anim == 2)
+		{
 			DotCircleReset();
 			animation1Reset();
 			snake(period);
 		}
 		else if (ind_anim == 3)
-			animation1(color,period);
-		else if (ind_anim == 4){
+			animation1(color, period);
+		else if (ind_anim == 4)
+		{
 			animation1Reset();
 			CircleReset();
 			pwmBlue(period);
 		}
 		else if (ind_anim == 5)
 			Circle(period);
-		else if (ind_anim == 6){
+		else if (ind_anim == 6)
+		{
 			CircleReset();
 			animation3Reset();
-			animation2(color,period);
+			animation2(color, period);
 		}
-		else if (ind_anim == 7){
+		else if (ind_anim == 7)
+		{
 			animation2Reset();
 			animation4Reset();
-			animation3(color,period);
-		} 
-		else if (ind_anim == 8){
+			animation3(color, period);
+		}
+		else if (ind_anim == 8)
+		{
 			animation2Reset();
 			authorsReset();
-			animation4(color,period);
+			animation4(color, period);
 		}
-		else{
+		else
+		{
 			animation4Reset();
 			authors(period);
 		}
 	}
 
-
-	if (ind_mode == 3){
-		if (flagCounter == 1){
+	if (ind_mode == 3)
+	{
+		if (flagCounter == 1)
+		{
 			ledOFF();
 			start();
-			flagCounter=0;
+			flagCounter = 0;
 		}
-		if (ind_timer == 1){
-			ret[0] = 1;	
+		if (ind_timer == 1)
+		{
+			ret[0] = 1;
 		}
-		else{
+		else
+		{
 			ret[0] = 0;
 			ledOFF();
 			start();
-			}
+		}
 	}
 	else
 	{
 		ret[0] = 0;
 	}
-	
-	ret[1]= color;
-	
+
+	ret[1] = color;
+
 	if (g_usart2_ridx >= (USART2_BUFFER_SIZE))
 	{
 		g_usart2_ridx = 0;
 	}
-	
+
 	return ret;
 }
-
-
 
 void printFunction(uint8_t row, uint8_t col, uint8_t bckc, uint8_t letcol, char *str, ...)
 {
@@ -888,11 +922,3 @@ void chkRxBuffUSART3(void)
 		usart3_state = 0;
 	}
 }
-
-
-
-
-
-
-
-

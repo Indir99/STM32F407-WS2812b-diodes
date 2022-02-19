@@ -7,7 +7,6 @@
 #include "misc.h"
 
 // #define USART_ECHO
-
 #define USART2_BUFFER_SIZE 512
 #define USART3_BUFFER_SIZE 512
 
@@ -27,7 +26,8 @@ void printUSART2(char *str, ...);
 void sprintUSART2(uint8_t *str);
 uint8_t getcharUSART2();
 
-uint32_t* chkRxBuffUSART2(void);
+// Handling arrows on usart2
+uint32_t *chkRxBuffUSART2(void);
 void enIrqUSART2(void);
 
 // Function for text printing in terminal
