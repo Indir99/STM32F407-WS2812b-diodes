@@ -15,7 +15,7 @@ Aplikacija sa WS2812B diodama nam omogucava sljedece funkcionalnosti:
 2. Odabir jedne od 6 osnovnih boja (red,green,blue,yellow,purple,cyan)
 3. timer (ispisuje vrijednosti od 0 do 9 sa periodom koji zadaje korisnik pomocu aplikacije)
 4. counter (pritiskom na push button koji se nalazi na ploci se mijenja vrijednost na plocici (od 0 do 9))
-5. Animacije: realiovano je nekoliko animacija
+5. Animacije: realizovano je nekoliko animacija
 
 ```
 -BLINK(diode blinkaju)
