@@ -65,6 +65,6 @@ Application functionality:
 At the following link you can see the animations:
 
 ```
-[link](https://www.dropbox.com/sh/w1v9qe28ea6kroo/AACG14wR0eP27liknVI37KAWa?dl=0)
+https://www.dropbox.com/sh/w1v9qe28ea6kroo/AACG14wR0eP27liknVI37KAWa?dl=0
 
 ```
