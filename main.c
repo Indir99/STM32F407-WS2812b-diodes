@@ -4,6 +4,7 @@
 #include "misc.h"
 #include "gui.h"
 #include "display.h"
+#include <stdio.h>
 
 // Board PD13 -> Disp board pin IN
 // Board PD15 -> Disp board pin EN
