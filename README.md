@@ -20,7 +20,13 @@ Application functionality:
 2. color selection for WS diodes (red,green,blue,yellow,purple,cyan)
 3. Timer (values from 0 to 9 with specific time period - the period is chosen by the user)
 4. Counter (when the push button is pressed (on the discovery board), the numerical value on the assembled board changes)
-5. Animations designed by the authors
+5. Animations designed by the authors:
+
+At the following link you can see the animations:
+
+```
+https://www.dropbox.com/sh/w1v9qe28ea6kroo/AACG14wR0eP27liknVI37KAWa?dl=0
+```
 
 ```
 -BLINK
