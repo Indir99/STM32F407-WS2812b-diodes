@@ -22,13 +22,6 @@ Application functionality:
 4. Counter (when the push button is pressed (on the discovery board), the numerical value on the assembled board changes)
 5. Animations designed by the authors:
 
-At the following link you can see the animations:
-
-```
-<a href="https://www.dropbox.com/sh/w1v9qe28ea6kroo/AACG14wR0eP27liknVI37KAWa?dl=0" target="_blank">Link</a>
-
-```
-
 ```
 -BLINK
 ```
@@ -67,4 +60,11 @@ At the following link you can see the animations:
 
 ```
 -Authors
+```
+
+At the following link you can see the animations:
+
+```
+[link](https://www.dropbox.com/sh/w1v9qe28ea6kroo/AACG14wR0eP27liknVI37KAWa?dl=0)
+
 ```
